@@ -1,5 +1,5 @@
 import styled from "styled-components"
-import StartingPage from "./pages/StartingPage"
+import WelcomeSection from "./pages/WelcomeSection"
 import Dashboard from "./pages/Dashboard"
 
 
@@ -8,7 +8,7 @@ function App() {
   if(isLoggedIn) {
     return <Dashboard/>
   } else {
-    return <StartingPage/>
+    return <WelcomeSection/>
   }
 }
 

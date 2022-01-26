@@ -5,10 +5,12 @@ import ForgotPassword from "./ForgotPassword"
 import SignUp from "./SignUp"
 
 
-const StartingPage = () => {
+const WelcomeSection = () => {
   return (
-    <Login/>
+    // <Login/>
+    <SignUp/>
+    // <ForgotPassword/>
   )
 };
 
-export default StartingPage;
+export default WelcomeSection;

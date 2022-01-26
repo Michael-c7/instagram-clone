@@ -1,5 +1,16 @@
 :root {
+  /*login vars*/
   --background-color:#fafafa;
+  --login-btn-bg:#b2dffc;
+  --login-btn-fg:#f2ffff;
+  --login-btn-bg-validated:#0095f6;
+  --login-link-dark:#00376b;
+  --login-link-light:#00a2f8;
+  --login-padding:1.25rem 2.25rem;
+
+  --gray-db:#dbdbdb;
+  --gray-fa:#fafafa;
+  
 }
 
 *,
@@ -40,5 +51,83 @@ a {
 
 
 /*universal classes*/
+  .center-transform {
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+  }
+
+
   /*Login*/
-  
+  .login__container {
+    text-align: center;
+  }
+
+  .login__heading {
+    font-weight: 400;
+    margin-bottom:0.75rem;
+  }
+
+  .login__main-content {
+    display:flex;
+    flex-direction: column;
+    background-color: #fff;
+    border:1px solid var(--gray-db);
+    border-radius: 2px;
+    padding:var(--login-padding);
+  }
+
+  .login__form {
+    display:flex;
+    flex-direction: column;
+  }
+
+  .form__input {
+    background-color: var(--gray-fa);
+    border:1px solid var(--gray-db);
+    border-radius: 2px;
+    margin:0.25rem 0;
+    padding:0.5rem;
+  }
+  .form__input::placeholder {
+    color:#8b929e;
+  }
+
+  .form-login-btn {
+    background: var(--login-btn-bg);
+    color:var(--login-btn-fg);
+    border:none;
+    margin:0.75rem 0 1rem 0;
+    padding:0.35rem;
+    border-radius: 3px;
+  }
+
+  .form-login-btn-validated {
+    background: var(--login-btn-bg-validated);
+    color:#fff;
+    cursor: pointer;
+  }
+
+
+  .login__component {
+    background-color: #fff;
+    border:1px solid var(--gray-db);
+    border-radius: 2px;
+    padding:var(--login-padding);
+    margin:1rem 0;
+  }
+
+  .login__link {
+    color:var(--login-link-dark);
+    font-size:0.85rem;
+  }
+
+  .component__text__link {
+    color:var(--login-link-light);
+  }
+
+  .login__text-pass {
+    max-width:30ch;
+    margin:0 auto 0.75rem auto;
+  }
