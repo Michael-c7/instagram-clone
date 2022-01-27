@@ -8,16 +8,12 @@ const ForgotPassword = () => {
               <h1 className="login__heading">Forgot Your password?</h1>
               <p className="login__text-pass">Enter your email and we'll send you a link to get back your account.</p>
               <form className="login__form">
-                  <input className="form__input" type="text" placeholder="Email"/>
+                  <input className="form__input" type="email" placeholder="Email"/>
                   <button className="form-login-btn ">Send Login Link</button>
               </form>
-              <a className="login__link" href="/">Forgot password?</a>
           </div>
           <div className="login__component">
               <p className="component__text">Have have an account? <a className="component__text__link" href="/">Log in</a></p>
-          </div>
-          <div className="login__component">
-              <p className="component__text">Don't have an account? <a className="component__text__link" href="/">Sign up</a></p>
           </div>
           <div className="login__component">
               <p className="component__text">Just curious? <a className="component__text__link" href="/">Try a demo account</a></p>
