@@ -23,8 +23,21 @@ export const AuthContextProvider = ({children}) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [isError, setIsError] = useState(false)
+    const [user, setUser] = useState(null)
 
     const auth = getAuth();
+
+    useEffect(() => {
+        setIsLoading(true)
+        const unsubscribe = onAuthStateChanged(auth, res => {
+            res ? setUser(res) : setUser(null)
+            res ? setIsLoggedIn(true) : setIsLoggedIn(false)
+            // console.log(res)
+            // setError("")
+            setIsLoading(false)
+        });
+        return unsubscribe;
+    }, [])
     
 
   const registerUser = (username, email, password) => {
@@ -39,6 +52,8 @@ export const AuthContextProvider = ({children}) => {
             password,
             uid:user.uid,
         })        
+        // log in the user
+        setIsLoggedIn(true)
     })
     .catch((error) => {
         const errorCode = error.code;
@@ -62,6 +77,9 @@ export const AuthContextProvider = ({children}) => {
     .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
+        // log in the user
+        setIsLoggedIn(true)
+
         // getting the user info from the database
         getDocs(collection(db, "users")).then((item) => {
             item.docs.forEach((thing) => {
@@ -440,7 +458,10 @@ export const AuthContextProvider = ({children}) => {
     // }    
 
 
-
+  const testFunc = e => {
+      e.preventDefault()
+      console.log("this is the test func")
+  }
 
     const contextValue = {
         isLoggedIn, setIsLoggedIn,
@@ -450,6 +471,7 @@ export const AuthContextProvider = ({children}) => {
         logoutUser,
         forgotPassword,
         signInUser,
+        testFunc,
     }
 
     return (

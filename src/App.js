@@ -11,6 +11,8 @@ import Profile from "./pages/Profile"
 import Error from "./pages/Error";
 
 
+// other stuff
+import { useAuthContext } from "./Auth/AuthContext"
 
 import {
   BrowserRouter,
@@ -21,7 +23,7 @@ import {
 
 
 function App() {
-  let isLoggedIn = false;
+  const { isLoggedIn } = useAuthContext();
   
 
   if(isLoggedIn) {
