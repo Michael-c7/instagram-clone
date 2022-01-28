@@ -11,7 +11,7 @@ import Profile from "./pages/Profile"
 import Error from "./pages/Error";
 
 
-import { render } from "react-dom";
+
 import {
   BrowserRouter,
   Routes,
@@ -21,7 +21,8 @@ import {
 
 
 function App() {
-  let isLoggedIn = true;
+  let isLoggedIn = false;
+  
 
   if(isLoggedIn) {
     return (
