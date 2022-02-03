@@ -108,7 +108,7 @@ const Wrapper = styled.div`
 
   .divider {
     display: block; height: 1px;
-    border: 0; border-top: 1px solid #EFEFEF;
+    border: 0; border-top: 1px solid var(--gray-divider);
     margin:0; padding: 0;
   }
 
