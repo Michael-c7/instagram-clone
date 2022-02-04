@@ -2,33 +2,64 @@ import React, { useEffect } from 'react';
 import styled from "styled-components"
 
 import { BsArrowLeft } from "react-icons/bs"
-
+import { usePostContext } from "../context/post_context"
 const CreatePost = () => {
-  const [postOpen, setPostOpen] = React.useState(true)
+  const {  isCreatePostModalOpen, closeCreatePostModal } = usePostContext()
+  const fileRef = React.useRef()
+  const [fileState, setFileState] = React.useState()
 
   useEffect(() => {
-    if(postOpen === true) {
+    if(isCreatePostModalOpen === true) {
       document.querySelector("body").style.overflow = "hidden"
       document.querySelector("body").style.position = "fixed";
     } 
-  }, [postOpen])
+  }, [isCreatePostModalOpen])
+
+  var imgPreview = document.querySelector(".preview-img");
+
+  const getImgData = () => {
+     const files = fileRef.current?.files[0];
+    if (files) {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(files);
+      fileReader.addEventListener("load", function () {
+        imgPreview.style.display = "block";
+        imgPreview.innerHTML = '<img src="' + this.result + '" />';
+      });    
+    }
+  }
+  
+  const currentFile = e => {
+    e.preventDefault()
+    // let file = fileRef.current.value;
+    // console.log(file)
+  }
+
+  useEffect(() => {
+    console.log(fileState)
+  }, [fileState])
+
+ 
+
+
 
 
   return (
      <Wrapper>
         <div className="container">
-          <button className="close-btn">&times;</button>
+          <button className="close-btn" onClick={closeCreatePostModal}>&times;</button>
           <div className="container__inner">
             <header className="menu__header">
-              <button className="back-btn"><BsArrowLeft/></button>
+              <button className="back-btn" onClick={closeCreatePostModal}><BsArrowLeft/></button>
               <h2 className="header__heading">Create new post</h2>
               <button className="share-btn">share</button>
             </header>
             <section className="content">
               <div className="content__upload">
-                <h2>Drag photos and videos here</h2>
+                {fileState?.length >= 1 ? <img className="preview-img" src={`${fileState[0].name}`} alt="file img" /> : <h2>Drag photos and videos here</h2>}
                 <label htmlFor="file-upload" className="form-login-btn form-login-btn-validated">Select from computer</label>
-                <input id="file-upload" type="file"/>
+                <input id="file-upload" type="file" ref={fileRef} onChange={() => getImgData()} accept="image/*"/>
+                {/*value={fileRef.current.value} */}
               </div>
               <div className="content__info">
                 <div className="profile-container">

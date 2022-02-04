@@ -5,13 +5,15 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 // contexts
-// AuthContextProvider
 import { AuthContextProvider } from "./Auth/AuthContext"
+import { PostProvider } from "./context/post_context"
 
 ReactDOM.render(
   <React.StrictMode>
     <AuthContextProvider>
-      <App />
+      <PostProvider>
+        <App />
+      </PostProvider>
     </AuthContextProvider>
   </React.StrictMode>,
   document.getElementById('root')

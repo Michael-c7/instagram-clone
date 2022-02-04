@@ -3,12 +3,13 @@ import Navbar from '../components/Navbar';
 import Feed from '../components/Feed';
 import styled from "styled-components"
 import CreatePost from '../components/createPost';
+import { usePostContext } from "../context/post_context"
 
 const Dashboard = () => {
-  const [ShowCreatePost, setShowCreatePost] = useState(true)
+  const {  isCreatePostModalOpen } = usePostContext()
   return (
     <Wrapper>
-      {ShowCreatePost ? <CreatePost/> : ""}
+      {isCreatePostModalOpen ? <CreatePost/> : ""}
       <Navbar/>
       <section className="main-feed">
         <div className="feed"> 

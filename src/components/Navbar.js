@@ -1,21 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from "styled-components"
 import Search from './Search';
 
 import { useAuthContext } from '../Auth/AuthContext';
-// IoMdAddCircleOutline, IoMdAddCircle
 import { FaRegUserCircle } from 'react-icons/fa';
 import { AiFillHome, AiOutlineHome, AiFillCompass, AiOutlineCompass } from "react-icons/ai"
 import { IoMdAddCircleOutline, IoMdAddCircle } from "react-icons/io"
 // import aboutImg from '../assets/hero-bcg.jpeg'
-
-
-// home icon --> AiFillHome, AiOutlineHome
-// crate a post icon --> IoMdAddCircleOutline, IoMdAddCircle
-// explore icon --> AiFillCompass, AiOutlineCompass
-// profile icon --> FaRegUserCircle
-
-
+import { usePostContext } from "../context/post_context"
 
 
 const Navbar = () => {
@@ -25,7 +17,17 @@ const Navbar = () => {
     createAPost:false,
     explore:false,
   })
-   
+
+  const { openCreatePostModal, isCreatePostModalOpen } = usePostContext()
+
+  // useEffect(() => {
+  //   if(isCreatePostModalOpen) {
+  //     setNavigationIconState({...navigationIconState, createAPost:true})
+  //   } else {
+  //     setNavigationIconState({...navigationIconState, createAPost:false})
+  //   }
+  // }, [navigationIconState])
+
   return (
     <Wrapper>
       <nav className="navbar">
@@ -33,7 +35,7 @@ const Navbar = () => {
           <Search className="search"/>
           <ul className="navigation">
             <li className="navigation__item">{navigationIconState.home ? <AiFillHome className="icon"/> : <AiOutlineHome className="icon"/>}</li>
-            <li className="navigation__item">{navigationIconState.createAPost ? <IoMdAddCircle className="icon"/> : <IoMdAddCircleOutline className="icon"/>}</li>
+            <li className="navigation__item" onClick={openCreatePostModal}>{navigationIconState.createAPost ? <IoMdAddCircle className="icon"/> : <IoMdAddCircleOutline className="icon"/>}</li>
             <li className="navigation__item">{navigationIconState.explore ? <AiFillCompass className="icon"/> : <AiOutlineCompass className="icon"/> }</li>
             <li className="navigation__item">
               <button className="profile-photo-btn">

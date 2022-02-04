@@ -1,3 +1,3 @@
-// some examples
-// export const SIDEBAR_OPEN = 'SIDEBAR_OPEN'
-// export const SIDEBAR_CLOSE = 'SIDEBAR_CLOSE'
+// createPost
+export const CREATE_POST_MODAL_OPEN = "CREATE_POST_MODAL_OPEN"
+export const CREATE_POST_MODAL_CLOSE = "CREATE_POST_MODAL_CLOSE"
