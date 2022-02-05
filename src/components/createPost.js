@@ -5,9 +5,10 @@ import { BsArrowLeft } from "react-icons/bs"
 import { usePostContext } from "../context/post_context"
 const CreatePost = () => {
   const {  isCreatePostModalOpen, closeCreatePostModal } = usePostContext()
-  const fileRef = React.useRef()
-  const [fileState, setFileState] = React.useState()
+  const [picture, setPicture] = React.useState(null);
+  const [imgData, setImgData] = React.useState(null);
 
+// open the modal
   useEffect(() => {
     if(isCreatePostModalOpen === true) {
       document.querySelector("body").style.overflow = "hidden"
@@ -15,40 +16,24 @@ const CreatePost = () => {
     } 
   }, [isCreatePostModalOpen])
 
-  var imgPreview = document.querySelector(".preview-img");
-
-  const getImgData = () => {
-     const files = fileRef.current?.files[0];
-    if (files) {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(files);
-      fileReader.addEventListener("load", function () {
-        imgPreview.style.display = "block";
-        imgPreview.innerHTML = '<img src="' + this.result + '" />';
-      });    
+// show the chosen image
+  const onChangePicture = e => {
+    if (e.target.files[0]) {
+      console.log("picture: ", e.target.files);
+      setPicture(e.target.files[0]);
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        setImgData(reader.result);
+      });
+      reader.readAsDataURL(e.target.files[0]);
     }
-  }
-  
-  const currentFile = e => {
-    e.preventDefault()
-    // let file = fileRef.current.value;
-    // console.log(file)
-  }
-
-  useEffect(() => {
-    console.log(fileState)
-  }, [fileState])
-
- 
-
-
-
+  };
 
   return (
      <Wrapper>
         <div className="container">
           <button className="close-btn" onClick={closeCreatePostModal}>&times;</button>
-          <div className="container__inner">
+          <div className={`container__inner ${!imgData ? "container__inner--start" : "container__inner--end"}`}>
             <header className="menu__header">
               <button className="back-btn" onClick={closeCreatePostModal}><BsArrowLeft/></button>
               <h2 className="header__heading">Create new post</h2>
@@ -56,10 +41,9 @@ const CreatePost = () => {
             </header>
             <section className="content">
               <div className="content__upload">
-                {fileState?.length >= 1 ? <img className="preview-img" src={`${fileState[0].name}`} alt="file img" /> : <h2>Drag photos and videos here</h2>}
-                <label htmlFor="file-upload" className="form-login-btn form-login-btn-validated">Select from computer</label>
-                <input id="file-upload" type="file" ref={fileRef} onChange={() => getImgData()} accept="image/*"/>
-                {/*value={fileRef.current.value} */}
+                {imgData?.length >= 1 ? <img className="preview-img" src={imgData} alt="file img" /> : <h2>Drag photos and videos here</h2>}
+                {!imgData?.length >= 1 ? <label htmlFor="file-upload" className="form-login-btn form-login-btn-validated">Select from computer</label> : ""}
+                <input id="file-upload" type="file" onChange={onChangePicture} accept="image/*"/>
               </div>
               <div className="content__info">
                 <div className="profile-container">
@@ -67,9 +51,6 @@ const CreatePost = () => {
                   <h2 className="profile-name">username here</h2>
                 </div>
                 <textarea className="description" placeholder="Write a caption..."></textarea>
-                <footer className="footer">
-                  <div className="word-count">0/2,200</div>
-                </footer>
               </div>
             </section>
           </div>
@@ -104,13 +85,26 @@ const Wrapper = styled.div`
 
   .container__inner {
     background:#fff;
-    position:relative;
-    left:50%;
+    position:absolute;
     top:50%;
+    left:50%;
     transform:translate(-50%, -50%);
-    width:50rem;
-    height:30rem;
     border-radius:10px;
+    overflow: hidden;
+  }
+
+  .container__inner--start {
+    width:50rem;
+    height:35rem;
+  }
+
+  .container__inner--end {
+    width:auto;
+    max-width:50rem;
+    min-width:25rem;
+
+    height:auto;
+    max-height:100rem;
   }
 
   input[type="file"] {
@@ -118,8 +112,6 @@ const Wrapper = styled.div`
   }
 
   .menu__content {
-    // background:red;
-
   }
 
 
@@ -160,16 +152,22 @@ const Wrapper = styled.div`
     display:grid;
     grid-template-columns:1fr 0.5fr;
     grid-template-rows:1fr;
-    height:90%;
+    height:100%;
     border-radius:inherit;
+    background:#fff;
   }
 
+
   .content__upload {
+    position:relative;
     display:flex;
     flex-direction:column;
     justify-content:center;
     align-items:center;
     text-align:center;
+    width:inherit;
+    border-radius:inherit;
+    height:100%;
   }
 
   .content__info {
@@ -179,6 +177,14 @@ const Wrapper = styled.div`
 
     display:grid;
     grid-template-rows:auto 1fr auto;
+  }
+
+  .preview-img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position: 50% 50%;
+    border-radius:0px 0px 0px 10px;
   }
 
   .profile-container {
@@ -231,10 +237,9 @@ const Wrapper = styled.div`
       position:relative;
       display:grid;
       grid-template-columns:1fr;
-      grid-template-rows:1fr 0.5fr;
-      height:90%;
+      grid-template-rows:minmax(0.5fr, 1fr) minmax(200px, 1fr);
+      height:100%;
       border:none;
-      background:none;
     }
 
     .content__info {
