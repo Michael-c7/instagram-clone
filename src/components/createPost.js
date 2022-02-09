@@ -1,12 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useState, useRef } from 'react';
 import styled from "styled-components"
-
 import { BsArrowLeft } from "react-icons/bs"
 import { usePostContext } from "../context/post_context"
+import { useAuthContext } from '../Auth/AuthContext';
+
 const CreatePost = () => {
-  const {  isCreatePostModalOpen, closeCreatePostModal } = usePostContext()
-  const [picture, setPicture] = React.useState(null);
-  const [imgData, setImgData] = React.useState(null);
+  const { user } = useAuthContext()
+
+  const { 
+    isCreatePostModalOpen,
+    closeCreatePostModal,
+    getUsersData,
+  } = usePostContext()
+  const [picture, setPicture] = useState(null);
+  const [imgData, setImgData] = useState(null);
+  const descriptionRef = useRef() 
+
 
 // open the modal
   useEffect(() => {
@@ -19,7 +28,7 @@ const CreatePost = () => {
 // show the chosen image
   const onChangePicture = e => {
     if (e.target.files[0]) {
-      console.log("picture: ", e.target.files);
+      // console.log("picture: ", e.target.files);
       setPicture(e.target.files[0]);
       const reader = new FileReader();
       reader.addEventListener("load", () => {
@@ -29,6 +38,96 @@ const CreatePost = () => {
     }
   };
 
+  const getCurrentDay = () => {
+    var objToday = new Date(),
+    weekday = new Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
+    dayOfWeek = weekday[objToday.getDay()],
+    domEnder = function() { var a = objToday; if (/1/.test(parseInt((a + "").charAt(0)))) return "th"; a = parseInt((a + "").charAt(1)); return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th" }(),
+    dayOfMonth = today + ( objToday.getDate() < 10) ? '0' + objToday.getDate() + domEnder : objToday.getDate() + domEnder,
+    months = new Array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
+    curMonth = months[objToday.getMonth()],
+    curYear = objToday.getFullYear(),
+    curHour = objToday.getHours() > 12 ? objToday.getHours() - 12 : (objToday.getHours() < 10 ? "0" + objToday.getHours() : objToday.getHours()),
+    curMinute = objToday.getMinutes() < 10 ? "0" + objToday.getMinutes() : objToday.getMinutes(),
+    curSeconds = objToday.getSeconds() < 10 ? "0" + objToday.getSeconds() : objToday.getSeconds(),
+    curMeridiem = objToday.getHours() > 12 ? "PM" : "AM";
+  // today
+    var today = curHour + ":" + curMinute + "." + curSeconds + curMeridiem + " " + dayOfWeek + " " + dayOfMonth + " of " + curMonth + ", " + curYear;
+  
+    return {
+      curHour,
+      curMinute,
+      curSeconds,
+      curMeridiem,
+      dayOfWeek,
+      dayOfMonth,
+      curMonth,
+      curYear,
+    }
+  }
+
+
+  const getCurrentUser = () => {
+    /*
+    1. get all users
+    2. get current user(by comparing uid)
+    3. getting the username & profile image
+    4. displaying this in the create a post & also submitting it in the post object
+    */
+  }
+
+  const generatePostId = _ => {
+    // generate a unique id for each post
+  }
+
+  useEffect(() => {
+    getUsersData()
+    // console.log(user.uid)
+  }, [])
+
+
+  
+
+
+  const share = (userImage, description, datePosted, postedBy, postId) => {
+    console.log("test of share function")
+
+    if(userImage) {
+      // console.log(userImage.name, userImage.size, userImage.type)
+      console.log(postedBy)
+
+      /*
+      data to get...
+        - image (src, name, filetype),
+        - description (useRef),
+        - date posted (11/22/22),
+        - user who posted it (username),
+        - give it a unique post id
+      */
+
+      // submit the data to the users database in an array of objects called posts
+
+      // submit to db
+      const post = {
+        userImage:{
+          src:userImage[0],
+          name:userImage[1].name,
+          size:userImage[1].type,
+          type:userImage[1].size,
+
+         },
+        description,
+        datePosted:datePosted(),
+        postedBy,
+        postId,
+      }
+
+      console.log(post.datePosted)
+      
+    }
+  // dont get the data
+  }
+
   return (
      <Wrapper>
         <div className="container">
@@ -37,7 +136,7 @@ const CreatePost = () => {
             <header className="menu__header">
               <button className="back-btn" onClick={closeCreatePostModal}><BsArrowLeft/></button>
               <h2 className="header__heading">Create new post</h2>
-              <button className="share-btn">share</button>
+              <button className="share-btn" onClick={() => share([imgData, picture], descriptionRef.current.value, getCurrentDay)}>share</button>
             </header>
             <section className="content">
               <div className="content__upload">
@@ -50,7 +149,7 @@ const CreatePost = () => {
                   <img className="profile-img" src="https://images.unsplash.com/photo-1531437888464-205744295d14?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=669&q=80" alt="profile"/>
                   <h2 className="profile-name">username here</h2>
                 </div>
-                <textarea className="description" placeholder="Write a caption..."></textarea>
+                <textarea className="description" ref={descriptionRef} placeholder="Write a caption..."></textarea>
               </div>
             </section>
           </div>

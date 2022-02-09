@@ -467,6 +467,7 @@ export const AuthContextProvider = ({children}) => {
         isLoggedIn, setIsLoggedIn,
         isLoading, setIsLoading,
         isError, setIsError,
+        user,
         registerUser,
         logoutUser,
         forgotPassword,
