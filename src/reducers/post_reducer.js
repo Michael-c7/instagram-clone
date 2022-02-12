@@ -20,24 +20,13 @@ const post_reducer = (state, action) => {
   
 
   if(action.type === GET_USERS_DATA) {
-    // getting the user info from the database
-    let data = getDocs(collection(db, "users")).then((item) => {
-      return item.docs.map((thing) => {
-        let currentInfo = thing["_document"].data.value.mapValue.fields;
-        return {
-          email:currentInfo.email.stringValue,            
-          username:currentInfo.username.stringValue,             
-          uid:currentInfo.uid.stringValue,
-        }
-      })
-    })
-
-    // data.then((arr) => {
-    //   return {...state, usersData:arr}
-    // })
-
-    return {...state, usersData:["cat", "dog"]}
+    return {...state, usersData: action.payload}
   }
+
+  if(action.type === GET_CURRENT_USER_DATA) {
+    return {...state, currentUserData: action.payload}
+  }
+
 
   // return state
   throw new Error(`No Matching "${action.type}" - action type`)

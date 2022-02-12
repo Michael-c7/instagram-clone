@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import reducer from '../reducers/post_reducer'
-import { collection, getDocs } from "firebase/firestore"; 
-
+// import { collection, getDocs } from "firebase/firestore"; 
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { AppAuth, db } from "../Auth/firebase"
+import { v4 as uuidv4 } from 'uuid';
 // import { products_url as url } from '../utils/constants'
-
 
 import {
   CREATE_POST_MODAL_OPEN,
@@ -16,6 +16,7 @@ import {
 const initialState = {
   isCreatePostModalOpen:false,
   usersData:[],
+  currentUserData:{},
 }
 
 const PostContext = React.createContext()
@@ -32,14 +33,59 @@ export const PostProvider = ({ children }) => {
     dispatch({ type: CREATE_POST_MODAL_CLOSE})
   }
 
-  const getUsersData = _ => {
-    dispatch({ type: GET_USERS_DATA})
-
+  const getUsersData = async _ => {
+    try {
+      let arr = []
+      const q = query(collection(db, "users"));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        let data = {...doc.data(), documentId:doc.id}
+        arr.push(data)
+      });
+      dispatch({ type: GET_USERS_DATA,payload:arr})
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  const getCurrentUserData = uid => {
-    dispatch({ type: GET_CURRENT_USER_DATA, payload:uid})
+
+  const getCurrentUserData = async (currentUserUid, usersData) => {
+    try {
+      let userObj = {}
+      usersData.forEach(user => {
+        if(user.uid === currentUserUid) {
+          userObj = user
+        }
+      })
+      dispatch({ type: GET_CURRENT_USER_DATA, payload:userObj})
+    } catch (error) {
+      console.log(error)
+    }
   }
+
+  const generateUniqueId = async _ => uuidv4();
+
+
+  // const meta = async _ => {
+  //   const q = query(collection(db, "users"));
+  //     const querySnapshot = await getDocs(q);
+  //     querySnapshot.forEach((doc) => {
+  //       // doc.data() is never undefined for query doc snapshots
+  //       console.log(doc.id)
+  //     });
+  // }
+
+
+
+
+
+  useEffect(() => {
+    getUsersData()
+  }, [])
+  
+
+  
 
   // const fetchProducts = async (url) => {
   //   dispatch({ type: GET_PRODUCTS_BEGIN })
@@ -57,9 +103,6 @@ export const PostProvider = ({ children }) => {
   //   fetchProducts(url)
   // }, [])
 
-  useEffect(() => {
-    console.log(initialState.usersData)
-  }, [initialState.usersData])
 
 
   return (
@@ -68,6 +111,8 @@ export const PostProvider = ({ children }) => {
         openCreatePostModal,
         closeCreatePostModal,
         getUsersData,
+        getCurrentUserData,
+        generateUniqueId,
       }}>
       {children}
     </PostContext.Provider>

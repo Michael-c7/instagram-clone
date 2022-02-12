@@ -3,6 +3,10 @@ import styled from "styled-components"
 import { BsArrowLeft } from "react-icons/bs"
 import { usePostContext } from "../context/post_context"
 import { useAuthContext } from '../Auth/AuthContext';
+import { doc, setDoc,updateDoc } from "firebase/firestore"; 
+import { db } from "../Auth/firebase"
+import { stringify } from '@firebase/util';
+
 
 const CreatePost = () => {
   const { user } = useAuthContext()
@@ -10,7 +14,11 @@ const CreatePost = () => {
   const { 
     isCreatePostModalOpen,
     closeCreatePostModal,
-    getUsersData,
+    usersData,
+    getCurrentUserData,
+    currentUserData:{username, profile_image,posts:currentUserPosts, documentId},
+    currentUserData,
+    generateUniqueId,
   } = usePostContext()
   const [picture, setPicture] = useState(null);
   const [imgData, setImgData] = useState(null);
@@ -66,64 +74,55 @@ const CreatePost = () => {
     }
   }
 
-
-  const getCurrentUser = () => {
-    /*
-    1. get all users
-    2. get current user(by comparing uid)
-    3. getting the username & profile image
-    4. displaying this in the create a post & also submitting it in the post object
-    */
-  }
-
-  const generatePostId = _ => {
-    // generate a unique id for each post
-  }
-
   useEffect(() => {
-    getUsersData()
-    // console.log(user.uid)
+    getCurrentUserData(user.uid, usersData)
   }, [])
 
 
-  
 
+  const share = async (userImage, description, datePosted, postedBy, postId) => {
+    if(userImage && userImage[1].type.includes("image")) {
 
-  const share = (userImage, description, datePosted, postedBy, postId) => {
-    console.log("test of share function")
-
-    if(userImage) {
-      // console.log(userImage.name, userImage.size, userImage.type)
-      console.log(postedBy)
-
-      /*
-      data to get...
-        - image (src, name, filetype),
-        - description (useRef),
-        - date posted (11/22/22),
-        - user who posted it (username),
-        - give it a unique post id
-      */
-
-      // submit the data to the users database in an array of objects called posts
-
-      // submit to db
+    // get the info to submit
       const post = {
         userImage:{
           src:userImage[0],
           name:userImage[1].name,
-          size:userImage[1].type,
-          type:userImage[1].size,
-
+          size:userImage[1].size,
+          type:userImage[1].type,
          },
         description,
         datePosted:datePosted(),
-        postedBy,
-        postId,
+        postedBy:postedBy,
+        postId:postId(),
       }
 
-      console.log(post.datePosted)
-      
+    // get metadata for user
+
+
+
+
+      // Add a new document in collection "users"
+      const frankDocRef = doc(db, "users", documentId);
+
+    //   await setDoc(frankDocRef, {
+    //     posts:"test value 123",
+
+    // });
+
+    // To update age and favorite color:
+    await updateDoc(frankDocRef, {
+      posts:[...stringify(post)],
+    });
+
+
+
+      // await setDoc(doc(db, "users", "posts"), post);
+
+      // redirect to the users profile
+
+      // currentUserPosts.push(post)
+
     }
   // dont get the data
   }
@@ -136,18 +135,31 @@ const CreatePost = () => {
             <header className="menu__header">
               <button className="back-btn" onClick={closeCreatePostModal}><BsArrowLeft/></button>
               <h2 className="header__heading">Create new post</h2>
-              <button className="share-btn" onClick={() => share([imgData, picture], descriptionRef.current.value, getCurrentDay)}>share</button>
+              <button className="share-btn" onClick={
+                () => share(
+                [imgData, picture],
+                descriptionRef.current.value,
+                getCurrentDay,
+                username,
+                generateUniqueId,
+                )}
+              >share</button>
             </header>
             <section className="content">
               <div className="content__upload">
-                {imgData?.length >= 1 ? <img className="preview-img" src={imgData} alt="file img" /> : <h2>Drag photos and videos here</h2>}
+                {imgData?.length >= 1 ? <img className="preview-img" src={imgData} alt="file img" /> : (
+                  <div>
+                    <h2 className="content__upload__h2">Submit your photo here</h2>
+                    <h3 className="content__upload__h3">Only submit images, nothing else</h3>
+                  </div>)
+                }
                 {!imgData?.length >= 1 ? <label htmlFor="file-upload" className="form-login-btn form-login-btn-validated">Select from computer</label> : ""}
                 <input id="file-upload" type="file" onChange={onChangePicture} accept="image/*"/>
               </div>
               <div className="content__info">
                 <div className="profile-container">
-                  <img className="profile-img" src="https://images.unsplash.com/photo-1531437888464-205744295d14?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=669&q=80" alt="profile"/>
-                  <h2 className="profile-name">username here</h2>
+                  <img className="profile-img" src={profile_image} alt="profile"/>
+                  <h2 className="profile-name">{username}</h2>
                 </div>
                 <textarea className="description" ref={descriptionRef} placeholder="Write a caption..."></textarea>
               </div>
@@ -269,6 +281,16 @@ const Wrapper = styled.div`
     height:100%;
   }
 
+
+  .content__upload__h2 {
+
+  }
+
+  .content__upload__h3 {
+    font-weight:400;
+    font-size:0.85rem;
+  }
+
   .content__info {
     padding:0.75rem 0.7rem 0.25rem 0.75rem;
     border-left:1px solid var(--gray-divider);
@@ -299,6 +321,8 @@ const Wrapper = styled.div`
     border:none;
     cursor:pointer;
     margin-right:1rem;
+    object-fit:cover;
+    object-position: 50% 50%;
   }
 
   .profile-name {
