@@ -76,7 +76,9 @@ const CreatePost = () => {
 
   useEffect(() => {
     getCurrentUserData(user.uid, usersData)
-  }, [])
+
+    console.log(currentUserPosts)
+  }, [currentUserData])
 
 
 
@@ -103,7 +105,7 @@ const CreatePost = () => {
 
 
       // Add a new document in collection "users"
-      const frankDocRef = doc(db, "users", documentId);
+      const postsDocRef = doc(db, "users", documentId);
 
     //   await setDoc(frankDocRef, {
     //     posts:"test value 123",
@@ -111,11 +113,15 @@ const CreatePost = () => {
     // });
 
     // To update age and favorite color:
-    await updateDoc(frankDocRef, {
+    await updateDoc(postsDocRef, {
       // posts:[...previousPostsWouldGoHere,stringify(post)],
       // post:[...currentUserPosts, stringify(post)]
-      post:"test value 123"
+
+
+      posts:[...currentUserPosts, stringify(post)]
+
     });
+    console.log("submitted")
 
 
 
