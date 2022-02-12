@@ -112,7 +112,9 @@ const CreatePost = () => {
 
     // To update age and favorite color:
     await updateDoc(frankDocRef, {
-      posts:[...stringify(post)],
+      // posts:[...previousPostsWouldGoHere,stringify(post)],
+      // post:[...currentUserPosts, stringify(post)]
+      post:"test value 123"
     });
 
 
