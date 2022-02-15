@@ -11,10 +11,14 @@ import { AppAuth, db } from "../Auth/firebase"
 
 const post_reducer = (state, action) => {
   if(action.type === CREATE_POST_MODAL_OPEN) {
+    document.querySelector("body").style.overflow = "hidden";
+    document.querySelector("body").style.position = "fixed";
     return {...state, isCreatePostModalOpen:true}
   }
 
   if(action.type === CREATE_POST_MODAL_CLOSE) {
+    document.querySelector("body").style.overflow = "auto";
+    document.querySelector("body").style.position = "static";
     return {...state, isCreatePostModalOpen:false}
   }
   

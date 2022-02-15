@@ -1,18 +1,23 @@
-import React, { useEffect,useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styled from "styled-components"
 import { BsArrowLeft } from "react-icons/bs"
 import { usePostContext } from "../context/post_context"
 import { useAuthContext } from '../Auth/AuthContext';
-import { doc, setDoc,updateDoc } from "firebase/firestore"; 
+import { doc, updateDoc } from "firebase/firestore"; 
 import { db } from "../Auth/firebase"
 import { stringify } from '@firebase/util';
+import { useNavigate } from "react-router-dom";
+import { getCurrentDay } from "../utils/helper";
 
 
 const CreatePost = () => {
+  let navigate = useNavigate();
   const { user } = useAuthContext()
+  const [picture, setPicture] = useState(null);
+  const [imgData, setImgData] = useState(null);
+  const descriptionRef = useRef() 
 
   const { 
-    isCreatePostModalOpen,
     closeCreatePostModal,
     usersData,
     getCurrentUserData,
@@ -20,18 +25,7 @@ const CreatePost = () => {
     currentUserData,
     generateUniqueId,
   } = usePostContext()
-  const [picture, setPicture] = useState(null);
-  const [imgData, setImgData] = useState(null);
-  const descriptionRef = useRef() 
 
-
-// open the modal
-  useEffect(() => {
-    if(isCreatePostModalOpen === true) {
-      document.querySelector("body").style.overflow = "hidden"
-      document.querySelector("body").style.position = "fixed";
-    } 
-  }, [isCreatePostModalOpen])
 
 // show the chosen image
   const onChangePicture = e => {
@@ -46,45 +40,15 @@ const CreatePost = () => {
     }
   };
 
-  const getCurrentDay = () => {
-    var objToday = new Date(),
-    weekday = new Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
-    dayOfWeek = weekday[objToday.getDay()],
-    domEnder = function() { var a = objToday; if (/1/.test(parseInt((a + "").charAt(0)))) return "th"; a = parseInt((a + "").charAt(1)); return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th" }(),
-    dayOfMonth = today + ( objToday.getDate() < 10) ? '0' + objToday.getDate() + domEnder : objToday.getDate() + domEnder,
-    months = new Array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
-    curMonth = months[objToday.getMonth()],
-    curYear = objToday.getFullYear(),
-    curHour = objToday.getHours() > 12 ? objToday.getHours() - 12 : (objToday.getHours() < 10 ? "0" + objToday.getHours() : objToday.getHours()),
-    curMinute = objToday.getMinutes() < 10 ? "0" + objToday.getMinutes() : objToday.getMinutes(),
-    curSeconds = objToday.getSeconds() < 10 ? "0" + objToday.getSeconds() : objToday.getSeconds(),
-    curMeridiem = objToday.getHours() > 12 ? "PM" : "AM";
-  // today
-    var today = curHour + ":" + curMinute + "." + curSeconds + curMeridiem + " " + dayOfWeek + " " + dayOfMonth + " of " + curMonth + ", " + curYear;
-  
-    return {
-      curHour,
-      curMinute,
-      curSeconds,
-      curMeridiem,
-      dayOfWeek,
-      dayOfMonth,
-      curMonth,
-      curYear,
-    }
-  }
 
   useEffect(() => {
     getCurrentUserData(user.uid, usersData)
-
-    console.log(currentUserPosts)
   }, [currentUserData])
 
 
 
   const share = async (userImage, description, datePosted, postedBy, postId) => {
     if(userImage && userImage[1].type.includes("image")) {
-
     // get the info to submit
       const post = {
         userImage:{
@@ -92,58 +56,46 @@ const CreatePost = () => {
           name:userImage[1].name,
           size:userImage[1].size,
           type:userImage[1].type,
-         },
+        },
         description,
         datePosted:datePosted(),
         postedBy:postedBy,
         postId:postId(),
       }
 
-    // get metadata for user
+  // Add a new document in collection "users"
+    const postsDocRef = doc(db, "users", documentId);
 
-
-
-
-      // Add a new document in collection "users"
-      const postsDocRef = doc(db, "users", documentId);
-
-    //   await setDoc(frankDocRef, {
-    //     posts:"test value 123",
-
-    // });
-
-    // To update age and favorite color:
     await updateDoc(postsDocRef, {
-      // posts:[...previousPostsWouldGoHere,stringify(post)],
-      // post:[...currentUserPosts, stringify(post)]
-
-
       posts:[...currentUserPosts, stringify(post)]
-
     });
-    console.log("submitted")
 
+  // After the data is submitted
+    // close the modal
+    closeCreatePostModal()
 
-
-      // await setDoc(doc(db, "users", "posts"), post);
-
-      // redirect to the users profile
-
-      // currentUserPosts.push(post)
-
+    // redirect to the users profile
+    navigate("/")
     }
   // dont get the data
   }
+
+
+
+
+
+
+
 
   return (
      <Wrapper>
         <div className="container">
           <button className="close-btn" onClick={closeCreatePostModal}>&times;</button>
-          <div className={`container__inner ${!imgData ? "container__inner--start" : "container__inner--end"}`}>
+          <form className={`container__inner ${!imgData ? "container__inner--start" : "container__inner--end"}`} method="POST">
             <header className="menu__header">
               <button className="back-btn" onClick={closeCreatePostModal}><BsArrowLeft/></button>
               <h2 className="header__heading">Create new post</h2>
-              <button className="share-btn" onClick={
+              <button className="share-btn" type="submit" onSubmit={
                 () => share(
                 [imgData, picture],
                 descriptionRef.current.value,
@@ -159,7 +111,8 @@ const CreatePost = () => {
                   <div>
                     <h2 className="content__upload__h2">Submit your photo here</h2>
                     <h3 className="content__upload__h3">Only submit images, nothing else</h3>
-                  </div>)
+                  </div>
+                  )
                 }
                 {!imgData?.length >= 1 ? <label htmlFor="file-upload" className="form-login-btn form-login-btn-validated">Select from computer</label> : ""}
                 <input id="file-upload" type="file" onChange={onChangePicture} accept="image/*"/>
@@ -172,7 +125,7 @@ const CreatePost = () => {
                 <textarea className="description" ref={descriptionRef} placeholder="Write a caption..."></textarea>
               </div>
             </section>
-          </div>
+          </form>
         </div>
      </Wrapper>
   )
@@ -180,7 +133,12 @@ const CreatePost = () => {
 
 export default CreatePost;
 
-/*when active make sure to disable the scroll bar for the body*/
+
+
+
+
+
+
 const Wrapper = styled.div`
   .container {
     position:absolute;
@@ -209,7 +167,9 @@ const Wrapper = styled.div`
     left:50%;
     transform:translate(-50%, -50%);
     border-radius:10px;
-    overflow: hidden;
+    overflow: auto;
+    display:grid;
+    grid-template-rows:50px auto;
   }
 
   .container__inner--start {
@@ -221,18 +181,13 @@ const Wrapper = styled.div`
     width:auto;
     max-width:50rem;
     min-width:25rem;
-
     height:auto;
-    max-height:100rem;
+    max-height:90%;
   }
 
   input[type="file"] {
     display: none;
   }
-
-  .menu__content {
-  }
-
 
   .menu__header {
     display:flex;
@@ -276,7 +231,6 @@ const Wrapper = styled.div`
     background:#fff;
   }
 
-
   .content__upload {
     position:relative;
     display:flex;
@@ -289,11 +243,6 @@ const Wrapper = styled.div`
     height:100%;
   }
 
-
-  .content__upload__h2 {
-
-  }
-
   .content__upload__h3 {
     font-weight:400;
     font-size:0.85rem;
@@ -303,7 +252,6 @@ const Wrapper = styled.div`
     padding:0.75rem 0.7rem 0.25rem 0.75rem;
     border-left:1px solid var(--gray-divider);
     height:100%;
-
     display:grid;
     grid-template-rows:auto 1fr auto;
   }
@@ -350,36 +298,17 @@ const Wrapper = styled.div`
     width:100%;
   }
 
-  .word-count {
-    display:flex;
-    justify-content:flex-end;
-    font-size:0.75rem;
-    color:gray;
-  }
-
-
-  @media screen and (max-width: 900px) {
-    .container__inner {
+  @media screen and (max-width: 825px),(max-height: 700px) {
+    .container__inner--start {
       width:90%;
-      height:100%:
+      height:90%;
     }
-
-    .content {
-      position:relative;
-      display:grid;
-      grid-template-columns:1fr;
-      grid-template-rows:minmax(0.5fr, 1fr) minmax(200px, 1fr);
-      height:100%;
-      border:none;
-    }
-
-    .content__info {
-      padding:0.75rem 0.7rem 0.25rem 0.75rem;
-      border-left:none;
-      border-top:1px solid var(--gray-divider);
-      height:100%;
   
-      display:grid;
-      grid-template-rows:auto 1fr auto;
+    .container__inner--end {
+      width:90%;
+      max-width:90%;
+      min-width:90%;
+      height:90%;
+      max-height:90%;
     }
 `
