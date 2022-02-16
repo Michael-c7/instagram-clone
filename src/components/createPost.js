@@ -91,11 +91,11 @@ const CreatePost = () => {
      <Wrapper>
         <div className="container">
           <button className="close-btn" onClick={closeCreatePostModal}>&times;</button>
-          <form className={`container__inner ${!imgData ? "container__inner--start" : "container__inner--end"}`} method="POST">
+          <form className={`container__inner ${!imgData ? "container__inner--start" : "container__inner--end"}`}>
             <header className="menu__header">
               <button className="back-btn" onClick={closeCreatePostModal}><BsArrowLeft/></button>
               <h2 className="header__heading">Create new post</h2>
-              <button className="share-btn" type="submit" onSubmit={
+              <button className="share-btn" onClick={
                 () => share(
                 [imgData, picture],
                 descriptionRef.current.value,
