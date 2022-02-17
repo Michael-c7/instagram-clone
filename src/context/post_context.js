@@ -17,6 +17,8 @@ const initialState = {
   isCreatePostModalOpen:false,
   usersData:[],
   currentUserData:{},
+  navigationIconHome:true,
+  navigationIconExplore:false,
 }
 
 const PostContext = React.createContext()

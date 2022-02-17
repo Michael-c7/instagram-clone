@@ -6,27 +6,20 @@ import { useAuthContext } from '../Auth/AuthContext';
 import { FaRegUserCircle } from 'react-icons/fa';
 import { AiFillHome, AiOutlineHome, AiFillCompass, AiOutlineCompass } from "react-icons/ai"
 import { IoMdAddCircleOutline, IoMdAddCircle } from "react-icons/io"
+import { MdExitToApp } from "react-icons/md"
 // import aboutImg from '../assets/hero-bcg.jpeg'
 import { usePostContext } from "../context/post_context"
 
 
 const Navbar = () => {
   const { logoutUser } = useAuthContext()
-  const [navigationIconState, setNavigationIconState] = useState({
-    home:false,
-    createAPost:false,
-    explore:false,
-  })
 
-  const { openCreatePostModal, isCreatePostModalOpen } = usePostContext()
-
-  // useEffect(() => {
-  //   if(isCreatePostModalOpen) {
-  //     setNavigationIconState({...navigationIconState, createAPost:true})
-  //   } else {
-  //     setNavigationIconState({...navigationIconState, createAPost:false})
-  //   }
-  // }, [navigationIconState])
+  const {
+    openCreatePostModal,
+    isCreatePostModalOpen,
+    navigationIconHome,
+    navigationIconExplore,
+   } = usePostContext()
 
   return (
     <Wrapper>
@@ -34,19 +27,27 @@ const Navbar = () => {
         <div className="navbar__inner">
           <Search className="search"/>
           <ul className="navigation">
-            <li className="navigation__item">{navigationIconState.home ? <AiFillHome className="icon"/> : <AiOutlineHome className="icon"/>}</li>
-            <li className="navigation__item" onClick={openCreatePostModal}>{navigationIconState.createAPost ? <IoMdAddCircle className="icon"/> : <IoMdAddCircleOutline className="icon"/>}</li>
-            <li className="navigation__item">{navigationIconState.explore ? <AiFillCompass className="icon"/> : <AiOutlineCompass className="icon"/> }</li>
+            <li className="navigation__item">{navigationIconHome ? <AiFillHome className="icon"/> : <AiOutlineHome className="icon"/>}</li>
+            <li className="navigation__item" onClick={openCreatePostModal}>{isCreatePostModalOpen ? <IoMdAddCircle className="icon"/> : <IoMdAddCircleOutline className="icon"/>}</li>
+            <li className="navigation__item">{navigationIconExplore ? <AiFillCompass className="icon"/> : <AiOutlineCompass className="icon"/> }</li>
             <li className="navigation__item">
               <button className="profile-photo-btn">
                 <img className="profile-photo" src="https://images.unsplash.com/photo-1531437888464-205744295d14?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=669&q=80" alt="profile"/>
               </button>
-              <div className="menu">
-                <ul>
-                  <li><a href="/"><FaRegUserCircle/> Profile</a></li>
-                  <li><hr/></li>
-                  <li><button onClick={logoutUser}>Log Out</button></li>
-                </ul>
+              <div className="menu menu__show">
+                <div className="menu__inner">
+                  <div className="triangle"></div>
+                    <ul className="menu__items">
+                      <li className="menu__item">
+                        <button className="menu-btn">
+                          <a href="/"><FaRegUserCircle className="menu-icon"/> Profile</a>
+                        </button>
+                      </li>
+                      <li className="menu__item">
+                        <button  className="menu-btn" onClick={logoutUser}><MdExitToApp className="menu-icon"/> Log Out</button>
+                      </li>
+                    </ul>
+                </div>
               </div>
             </li>
           </ul>
@@ -109,9 +110,74 @@ const Wrapper = styled.section`
     object-fit: cover;
   }
 
+
+
+
+
   .menu {
     display:none;
+    position:absolute;
+    z-index:2;
+    left:0%;
+    top:2.2rem;
+    transform:translate(0%, 2.2rem);
+    width:100%;
+  }
+
+  .menu__inner {
+    position:relative;
     background:#fff;
+    border-radius:5px;
+    box-shadow: 0px 0px 10px 1px #ECECEC;
+    padding:0.25rem;
+    z-index:2;
+    width:10rem;
+    left:67.5%;
+    transform:translateX(-67.5%);
+  }
+
+  .triangle {
+    position:relative;
+    width: 0;
+    height: 0;
+    border-top: 15px solid transparent;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 15px solid #efefef;
+    top:-30px;
+    left:95%;
+    transform:translate(-95%);
+
+  }
+
+  .menu__item {
+    display:flex;
+    just-content:center;
+    align-items:center;
+    padding:0.5rem;
+    
+  }
+  .menu__item:hover {
+    background:#fafafa;
+    cursor:pointer;
+  }
+
+  .menu__show {
+    display:block;
+  }
+
+
+  .menu-btn {
+    background:none;
+    border:none;
+    font-size:1rem;
+    display:flex;
+    just-content:center;
+    align-items:center;
+  }
+
+  .menu-icon {
+    margin-right:0.25rem;
   }
 
 `
