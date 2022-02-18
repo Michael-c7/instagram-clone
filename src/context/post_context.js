@@ -11,6 +11,7 @@ import {
   CREATE_POST_MODAL_CLOSE,
   GET_USERS_DATA,
   GET_CURRENT_USER_DATA,
+  TOGGLE_PROFILE_DROPDOWN,
 } from '../actions'
 
 const initialState = {
@@ -19,6 +20,7 @@ const initialState = {
   currentUserData:{},
   navigationIconHome:true,
   navigationIconExplore:false,
+  showProfileDropdown:false,
 }
 
 const PostContext = React.createContext()
@@ -64,6 +66,11 @@ export const PostProvider = ({ children }) => {
     } catch (error) {
       console.log(error)
     }
+  }
+
+
+  const toggleProfileDropdown = _ => {
+    dispatch({type:TOGGLE_PROFILE_DROPDOWN})
   }
 
   const generateUniqueId = async _ => uuidv4();
@@ -115,6 +122,7 @@ export const PostProvider = ({ children }) => {
         getUsersData,
         getCurrentUserData,
         generateUniqueId,
+        toggleProfileDropdown,
       }}>
       {children}
     </PostContext.Provider>
