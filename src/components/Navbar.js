@@ -7,6 +7,7 @@ import { FaRegUserCircle } from 'react-icons/fa';
 import { AiFillHome, AiOutlineHome, AiFillCompass, AiOutlineCompass } from "react-icons/ai"
 import { IoMdAddCircleOutline, IoMdAddCircle } from "react-icons/io"
 import { MdExitToApp } from "react-icons/md"
+import { FiUser } from "react-icons/fi"
 // import aboutImg from '../assets/hero-bcg.jpeg'
 import { usePostContext } from "../context/post_context"
 import { Link } from 'react-router-dom';
@@ -36,7 +37,7 @@ const Navbar = () => {
             <li className="navigation__item">{navigationIconExplore ? <AiFillCompass className="icon"/> : <AiOutlineCompass className="icon"/> }</li>
             <li className="navigation__item">
               <button className="profile-photo-btn" onClick={toggleProfileDropdown}>
-                <img className="profile-photo" src="https://images.unsplash.com/photo-1531437888464-205744295d14?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=669&q=80" alt="profile"/>
+                <FiUser className="profile-icon"/>
               </button>
 
               <ul className={showProfileDropdown ? "dropdown show-dropdown" : "dropdown"}>
@@ -87,6 +88,29 @@ const Wrapper = styled.section`
     align-items:center;
   }
 
+
+  @media screen and (max-width:1050px) {
+    .navbar {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#fff;
+      border-bottom:1px solid var(--gray-db);
+      padding:1rem 0;
+    }
+
+
+    .navbar__inner {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+    }
+  }
+
+
+
+
   .navigation {
     display:flex;
     justify-content:center;
@@ -103,20 +127,14 @@ const Wrapper = styled.section`
   }
 
   .profile-photo-btn {
-    width:27px;
-    height:27px;
-    border-radius:100px;
-    border:none;
     cursor:pointer;
     z-index:-1;
+    background:none;
+    border:none;
+    font-size:1.5rem;
+    margin-bottom:0.5rem;
   }
 
-  .profile-photo {
-    width:100%;
-    height:100%;
-    border-radius:inherit;
-    object-fit: cover;
-  }
   
 ul {
 	list-style: none;
@@ -139,7 +157,6 @@ li {
   height: 0; 
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-  
   border-bottom: 10px solid #fff;
   top:-18px;
   left:77%;
@@ -148,13 +165,13 @@ li {
 
 .dropdown {
 	visibility: hidden;
+  display: none;
   opacity: 0;
   min-width: 10rem;
 	position: absolute;
   transition: all 0.5s ease;
   margin-top: 1rem;
 	left: -100px;
-  display: none;
   background:#fff;
   border-radius:5px;
   filter:drop-shadow(0px 0px 10px var(--gray-db));
@@ -177,7 +194,7 @@ li {
 }
 
 .dropdown__item:hover {
-  background:#efefef;
+  background:#fafafa;
 }
 
 .dropdown-icon {

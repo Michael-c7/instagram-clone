@@ -60,6 +60,8 @@ const Wrapper = styled.div`
     margin:2rem 0;
   }
 
+  
+
 
   .header {
     display:flex;
@@ -87,7 +89,8 @@ const Wrapper = styled.div`
   }
 
   .post-img {
-    height:inherit;
+    width:inherit;
+    height:100%;
     object-fit: cover;
   }
 
@@ -182,5 +185,26 @@ const Wrapper = styled.div`
   .post-a-comment-btn--validated {
     color:var(--login-btn-bg-validated);
     cursor:pointer;
+  }
+
+
+
+
+
+
+
+
+
+  @media screen and (max-width:700px) {
+    .post {
+      min-width:20rem;
+      width:100%;
+    }
+
+    .post-img {
+      width:100%;
+      height:100%;
+      object-fit: cover;
+    }
   }
 `
