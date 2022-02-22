@@ -97,14 +97,37 @@ const Wrapper = styled.section`
       background:#fff;
       border-bottom:1px solid var(--gray-db);
       padding:1rem 0;
+      
     }
 
+    .navbar__inner {
+      display:flex;
+      justify-content:space-around;
+      align-items:center;
+      width:100%;
+    }
+  }
+
+
+  @media screen and (max-width:500px) {
+    .navbar {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#fff;
+      border-bottom:1px solid var(--gray-db);
+      padding:1rem 0;
+    }
 
     .navbar__inner {
       display:flex;
       flex-direction:column;
       justify-content:center;
       align-items:center;
+    }
+
+    .navbar__inner > * {
+      margin:0.5rem 0;
     }
   }
 
