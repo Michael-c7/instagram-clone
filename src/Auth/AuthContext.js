@@ -209,7 +209,6 @@ export const AuthContextProvider = ({children}) => {
     //     getUserInfo()
     // }, [])
 
-
     
 
     // const registerUser = (email, name, password, role) => {
@@ -227,10 +226,7 @@ export const AuthContextProvider = ({children}) => {
     //     })
     //     .catch(err => setIsError(err.message))
     //     .finally(() => setIsLoading(false))
-    //   };
-
-
-      
+    //   };    
       
 
 
