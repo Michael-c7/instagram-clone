@@ -12,7 +12,9 @@ const Search = () => {
   React.useEffect(() => {
     if(userInput.length >= 1) {
       let maxAmtOfUsers = 8;
-      let filterUsers = usersData.filter((user) => user.username.includes(userInput))
+      let filterUsers = usersData.filter((user) => 
+        user.username.toLowerCase().indexOf(userInput.toLowerCase()) !== -1);
+      
       let usersLimited = filterUsers.slice(0, maxAmtOfUsers)
       setUserDataState(usersLimited)
     }
@@ -30,13 +32,12 @@ const Search = () => {
         <div className={userInput.length >= 1 ? "search-users-container show-search-users" : "search-users-container"}>
         {userInput.length >= 1 ? (
           <ul className="search-users">
-            {userDataState?.length > 1 ? userDataState.map((user) => {
-              const { uid, username } = user;
+            {userDataState?.length >= 1 ? userDataState.map((user) => {
               let usernameCharMax = 15;
-
+              const {username, uid} = user
               return (
                 <li className="search-user" key={uid}>
-                  <Link className="search-user__link" to={`/${username}`}>
+                  <Link className="search-user__link" to={`/${user}`}>
                     <h2 className="search-user__name">{username.length < usernameCharMax ? username : `${username.slice(0, usernameCharMax)}...`}</h2>
                   </Link>
                 </li>
@@ -176,6 +177,7 @@ const Wrapper = styled.section`
     font-size:0.85rem;
     border-radius:inherit;
     width:auto;
+    color:#777;
   }
 
   .search-user:hover {
