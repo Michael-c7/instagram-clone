@@ -37,7 +37,7 @@ const Search = () => {
               const {username, uid} = user
               return (
                 <li className="search-user" key={uid}>
-                  <Link className="search-user__link" to={`/${user}`}>
+                  <Link className="search-user__link" to={`/${username}`}>
                     <h2 className="search-user__name">{username.length < usernameCharMax ? username : `${username.slice(0, usernameCharMax)}...`}</h2>
                   </Link>
                 </li>
@@ -81,21 +81,6 @@ const Wrapper = styled.section`
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
     font-weight:300;
-  }
-
-
-
-  .triangle-2 {
-    position:absolute;
-    width: 0; 
-    height: 0; 
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 10px solid #fff;
-    top:67px;
-    left:35.5%;
-    transform:translate(-35.5%);
-    z-index:10;
   }
 
   .search-users-container {
