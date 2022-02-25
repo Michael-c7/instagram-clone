@@ -37,7 +37,7 @@ const Search = () => {
               const {username, uid} = user
               return (
                 <li className="search-user" key={uid}>
-                  <Link className="search-user__link" to={`/${username}`}>
+                  <Link className="search-user__link" to={`/${uid}`}>
                     <h2 className="search-user__name">{username.length < usernameCharMax ? username : `${username.slice(0, usernameCharMax)}...`}</h2>
                   </Link>
                 </li>
