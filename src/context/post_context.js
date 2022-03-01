@@ -12,12 +12,23 @@ import {
   GET_USERS_DATA,
   GET_CURRENT_USER_DATA,
   TOGGLE_PROFILE_DROPDOWN,
+  TOGGLE_NAVIGATION_ICON_HOME_VALUE,
+  TOGGLE_NAVIGATION_ICON_EXPLORE_VALUE,
 } from '../actions'
 
-const initialState = {
+import {
+  getAuth,
+  onAuthStateChanged,
+
+} from "firebase/auth";
+
+let initialState = {
   isCreatePostModalOpen:false,
   usersData:[],
   currentUserData:{},
+  loggedInUid:"",
+  loggedInUserData:{},
+  loggedInUserSameAsCurrentProfile:false,
   navigationIconHome:true,
   navigationIconExplore:false,
   showProfileDropdown:false,
@@ -73,7 +84,54 @@ export const PostProvider = ({ children }) => {
     dispatch({type:TOGGLE_PROFILE_DROPDOWN})
   }
 
+// used to generate a unique id for the user
   const generateUniqueId = async _ => uuidv4();
+
+
+  const toggleNavigationIconHome = (iconValue) => {
+    dispatch({type:TOGGLE_NAVIGATION_ICON_HOME_VALUE, payload:iconValue})
+  }
+
+  const toggleNavigationIconExplore = (iconValue) => {
+    dispatch({type:TOGGLE_NAVIGATION_ICON_EXPLORE_VALUE, payload:iconValue})
+  }
+
+
+  const  getLoggedInUserData = _ => {
+    dispatch({type:"GET_LOGGED_IN_USER_DATA"})
+  }
+
+
+  const followUser = (currentProfileUid) => {
+    // const postsDocRef = doc(db, "users", documentId);
+
+  // await updateDoc(postsDocRef, {
+  //   posts:[...currentUserPosts, stringify(post)]
+  // });
+    console.log("the Follow button")
+    dispatch({type:"FOLLOW_USER"})
+  }
+
+  const unFollowUser = (currentProfileUid) => {
+    console.log("the unFollow button")
+
+    dispatch({type:"UNFOLLOW_USER"})
+
+    
+
+  }
+
+/*check if the logged in user & the profile page
+this person is visiting are the same*/
+  const checkCurrentUser = currentProfileUid => {
+    dispatch({type:"CHECK_CURRENT_USER", payload:currentProfileUid})
+  }
+
+
+  
+
+
+
 
 
   // const meta = async _ => {
@@ -91,7 +149,20 @@ export const PostProvider = ({ children }) => {
 
   useEffect(() => {
     getUsersData()
+    getLoggedInUserData()
   }, [])
+
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(getAuth(), res => {
+      const loggedInUserUid = res.uid;
+      dispatch({type:"GET_LOGGED_IN_UID", payload:loggedInUserUid})
+    });
+    return unsubscribe;    
+}, [])
+
+
+
   
 
   
@@ -123,6 +194,12 @@ export const PostProvider = ({ children }) => {
         getCurrentUserData,
         generateUniqueId,
         toggleProfileDropdown,
+        toggleNavigationIconHome,
+        toggleNavigationIconExplore,
+        followUser,
+        unFollowUser,
+        checkCurrentUser,
+        getLoggedInUserData,
       }}>
       {children}
     </PostContext.Provider>

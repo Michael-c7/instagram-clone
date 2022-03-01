@@ -23,6 +23,8 @@ const Navbar = () => {
     navigationIconExplore,
     toggleProfileDropdown,
     showProfileDropdown,
+    toggleNavigationIconHome,
+    toggleNavigationIconExplore,
    } = usePostContext()
 
 
@@ -32,9 +34,19 @@ const Navbar = () => {
         <div className="navbar__inner">
           <Search className="search"/>
           <ul className="navigation">
-            <li className="navigation__item">{navigationIconHome ? <AiFillHome className="icon"/> : <AiOutlineHome className="icon"/>}</li>
-            <li className="navigation__item" onClick={openCreatePostModal}>{isCreatePostModalOpen ? <IoMdAddCircle className="icon"/> : <IoMdAddCircleOutline className="icon"/>}</li>
-            <li className="navigation__item">{navigationIconExplore ? <AiFillCompass className="icon"/> : <AiOutlineCompass className="icon"/> }</li>
+            <li className="navigation__item">
+              <Link to="/" onClick={() => toggleNavigationIconHome(true)}>
+                {navigationIconHome ? <AiFillHome className="icon"/> : <AiOutlineHome className="icon"/>}
+              </Link>
+              </li>
+            <li className="navigation__item" onClick={openCreatePostModal}>
+              {isCreatePostModalOpen ? <IoMdAddCircle className="icon"/> : <IoMdAddCircleOutline className="icon"/>}
+            </li>
+            <li className="navigation__item">
+              <Link to="/">
+                {navigationIconExplore ? <AiFillCompass className="icon"/> : <AiOutlineCompass className="icon"/>}
+              </Link>
+            </li>
             <li className="navigation__item">
               <button className="profile-photo-btn" onClick={toggleProfileDropdown}>
                 <FiUser className="profile-icon"/>

@@ -7,6 +7,7 @@ import ForgotPassword from "./pages/ForgotPassword"
 import SignUp from "./pages/SignUp"
 // both logged in and logged out
 import Profile from "./pages/Profile"
+import Post from "./components/Post"
 // other pages
 import Error from "./pages/Error";
 
@@ -22,6 +23,7 @@ import {
 } from "react-router-dom";
 
 
+
 function App() {
   const { isLoggedIn } = useAuthContext();
   
@@ -32,6 +34,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/:id" element={<Profile />}/>
+          <Route path="/p/:id" element={<Post />}/>
           <Route path="/signUp" element={<Navigate to="/" />} />
           <Route path="/forgotPassword" element={<Navigate to="/" />} />
           <Route path="*" element={<Error />} />
@@ -46,6 +49,7 @@ function App() {
           <Route path="/signUp" element={<SignUp />} />
           <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/:id" element={<Profile />}/>
+          <Route path="/p/:id" element={<Post />}/>
           <Route path="*" element={<Error />} />
         </Routes>
       </BrowserRouter>
