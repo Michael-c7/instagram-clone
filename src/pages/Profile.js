@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from "styled-components"
 import CreatePost from '../components/createPost';
 import { usePostContext } from "../context/post_context"
@@ -21,8 +21,11 @@ const Profile = () => {
     checkCurrentUser,
     getLoggedInUserData,
     loggedInUserData,
+    loggedInUid,
+    checkIfFollowing,
+    isFollowing,
   } = usePostContext()
-  let [isFollowing, setIsFollowing] = React.useState(false)
+  // let [isFollowing, setIsFollowing] = React.useState(false)
   const [currentUser, setCurrentUser] = React.useState({})
   const { id:uidFromUrl } = useParams()
 
@@ -46,6 +49,12 @@ const Profile = () => {
   React.useEffect(() => {
     checkCurrentUser(uidFromUrl)
   }, [loggedInUserSameAsCurrentProfile])
+
+
+  useEffect(() => {
+    checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
+  }, [currentUser, isFollowing])
+
 
   /*
   fix
@@ -72,8 +81,8 @@ const Profile = () => {
               <header className="content__header">
                 <h2 className="header__username">{currentUser?.username ? currentUser?.username : "user not found"}</h2>
                 {/*Follow button*/}
-                {!loggedInUserSameAsCurrentProfile && isFollowing ? <button className="form-login-btn follow-btn following" onClick={() => unFollowUser(uidFromUrl)}>Following</button> : ""}
-                {!loggedInUserSameAsCurrentProfile && !isFollowing ? <button className="form-login-btn follow-btn" onClick={() => followUser(uidFromUrl)}>Follow</button> : ""}
+                {!loggedInUserSameAsCurrentProfile && isFollowing ? <button className="form-login-btn follow-btn following" onClick={() => unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData))}>Following</button> : ""}
+                {!loggedInUserSameAsCurrentProfile && !isFollowing ? <button className="form-login-btn follow-btn" onClick={() => followUser(currentUser, getSpecificUser(loggedInUid, usersData))}>Follow</button> : ""}
 
               </header>
               <div className="profile__content__info">

@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import reducer from '../reducers/post_reducer'
 // import { collection, getDocs } from "firebase/firestore"; 
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc  } from "firebase/firestore";
 import { AppAuth, db } from "../Auth/firebase"
 import { v4 as uuidv4 } from 'uuid';
-// import { products_url as url } from '../utils/constants'
+// import { products_url as url } from '../utils/constants' 
 
 import {
   CREATE_POST_MODAL_OPEN,
@@ -32,6 +32,7 @@ let initialState = {
   navigationIconHome:true,
   navigationIconExplore:false,
   showProfileDropdown:false,
+  isFollowing:false,
 }
 
 const PostContext = React.createContext()
@@ -101,21 +102,44 @@ export const PostProvider = ({ children }) => {
     dispatch({type:"GET_LOGGED_IN_USER_DATA"})
   }
 
+// currentProfileUserData & loggedInUserData : object of the data
+  const followUser = async (currentProfileUserData, loggedInUserData) => {
+    const {
+      documentId:currentProfileDocumentId,
+      uid:currentProfileUid,
+      followers:currentProfileFollowers,
+    } = currentProfileUserData;
+    const {
+      documentId:loggedInProfileDocumentId,
+      uid:loggedInProfileUid,
+      following:loggedInProfileFollowing,
+    } = loggedInUserData;
 
-  const followUser = (currentProfileUid) => {
-    // const postsDocRef = doc(db, "users", documentId);
+    //  add the logged in users uid to the current profiles followers array
+    const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
+    await updateDoc(loggedInRef, {
+      following:[...loggedInProfileFollowing, currentProfileUid]
+    });
 
-  // await updateDoc(postsDocRef, {
-  //   posts:[...currentUserPosts, stringify(post)]
-  // });
+    //  add the current profiles uid to the logged in users following array
+    const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+    await updateDoc(currentProfileRef, {
+      followers:[...currentProfileFollowers, loggedInProfileUid]
+    });
+
+    // dispatch a isFollowing command to true
     console.log("the Follow button")
-    dispatch({type:"FOLLOW_USER"})
+    // dispatch({type:"FOLLOW_USER"})
   }
 
-  const unFollowUser = (currentProfileUid) => {
+  const unFollowUser = (currentProfileUserData, loggedInUserData) => {
+    // do what you did in followUser func but instead of adding, just remove
     console.log("the unFollow button")
 
     dispatch({type:"UNFOLLOW_USER"})
+
+    // dispatch an is following command to false
+
 
     
 
@@ -125,6 +149,20 @@ export const PostProvider = ({ children }) => {
 this person is visiting are the same*/
   const checkCurrentUser = currentProfileUid => {
     dispatch({type:"CHECK_CURRENT_USER", payload:currentProfileUid})
+  }
+
+/*
+- checks if the logged in user is following the current profile,
+- args 1 & 2 both strings,
+- return a boolean*/
+  const checkIfFollowing = (currentProfileUserData, loggedInUserData) => {
+    // is the logged in user uid in the current profile followers list
+    // AND is the current profile uid in the logged in users following list
+    console.log(loggedInUserData?.uid)
+    console.log(loggedInUserData?.following)
+
+    console.log(currentProfileUserData?.uid)
+    console.log(currentProfileUserData?.followers)
   }
 
 
@@ -200,6 +238,7 @@ this person is visiting are the same*/
         unFollowUser,
         checkCurrentUser,
         getLoggedInUserData,
+        checkIfFollowing,
       }}>
       {children}
     </PostContext.Provider>
