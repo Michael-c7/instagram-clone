@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from "styled-components"
 import CreatePost from '../components/createPost';
 import { usePostContext } from "../context/post_context"
@@ -26,7 +26,10 @@ const Profile = () => {
     isFollowing,
   } = usePostContext()
   // let [isFollowing, setIsFollowing] = React.useState(false)
-  const [currentUser, setCurrentUser] = React.useState({})
+  const [currentUser, setCurrentUser] = useState({})
+  const [currentUserFollowerCount, setCurrentUserFollowerCount] = useState(0)
+  const [currentUserFollowingCount, setCurrentUserFollowingCount] = useState(0)
+
   const { id:uidFromUrl } = useParams()
 
   const getSpecificUser = (userUid, userData) => {
@@ -53,6 +56,10 @@ const Profile = () => {
 
   useEffect(() => {
     checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
+
+    setCurrentUserFollowerCount(currentUser?.followers?.length)
+    setCurrentUserFollowingCount(currentUser?.following?.length)
+
   }, [currentUser, isFollowing])
 
 
@@ -87,8 +94,8 @@ const Profile = () => {
               </header>
               <div className="profile__content__info">
                 <p className="content__info__item info__posts"><span>{currentUser?.posts?.length ? currentUser?.posts?.length : 0}</span> posts</p>
-                <p className="content__info__item info__followers"><span>567</span> followers</p>
-                <p className="content__info__item info__following"><span>890</span> following</p>
+                <p className="content__info__item info__followers"><span>{currentUserFollowerCount}</span> follower{currentUserFollowerCount === 1 ? "" : "s"}</p>
+                <p className="content__info__item info__following"><span>{currentUserFollowingCount}</span> following</p>
               </div>
 
               {/* <p className="content__description">

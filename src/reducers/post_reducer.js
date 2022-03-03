@@ -11,6 +11,7 @@ import {
 import { collection, getDocs } from "firebase/firestore"; 
 
 import { AppAuth, db } from "../Auth/firebase"
+import { ActionCodeOperation } from 'firebase/auth';
 
 const post_reducer = (state, action) => {
   if(action.type === CREATE_POST_MODAL_OPEN) {
@@ -70,23 +71,8 @@ const post_reducer = (state, action) => {
     return {...state, loggedInUserData:data}
   }
 
-
-  if(action.type === "FOLLOW_USER") {
-    // get the follower & following count from the database & update it
-  // Add a new document in collection "users"
-  
-    // add the current profile uid to the logged in users following array
-
-    // add the logged in users uid to the current profiles followers array
-
-    return {...state,}
-  }
-
-  if(action.type === "UNFOLLOW_USER") {
-    // remove the current profile uid to the logged in users following array
-
-    // remove the logged in users uid to the current profiles followers array
-    return {...state,}
+  if(action.type === "UPDATE_IS_FOLLOWING") {
+    return {...state, isFollowing:action.payload}
   }
 
 

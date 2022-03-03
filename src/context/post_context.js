@@ -126,24 +126,49 @@ export const PostProvider = ({ children }) => {
     await updateDoc(currentProfileRef, {
       followers:[...currentProfileFollowers, loggedInProfileUid]
     });
-
-    // dispatch a isFollowing command to true
-    console.log("the Follow button")
-    // dispatch({type:"FOLLOW_USER"})
+    dispatch({type:"UPDATE_IS_FOLLOWING", payload:true})
   }
 
-  const unFollowUser = (currentProfileUserData, loggedInUserData) => {
+
+
+  const unFollowUser = async (currentProfileUserData, loggedInUserData) => {
     // do what you did in followUser func but instead of adding, just remove
-    console.log("the unFollow button")
+    const {
+      documentId:currentProfileDocumentId,
+      uid:currentProfileUid,
+      followers:currentProfileFollowers,
+    } = currentProfileUserData;
+    const {
+      documentId:loggedInProfileDocumentId,
+      uid:loggedInProfileUid,
+      following:loggedInProfileFollowing,
+    } = loggedInUserData;
 
-    dispatch({type:"UNFOLLOW_USER"})
-
-    // dispatch an is following command to false
 
 
+    //  remove the logged in users uid to the current profiles followers array
+    let updatedFollowing = loggedInProfileFollowing?.filter(uid => uid !== currentProfileUid)
     
+    const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
+    await updateDoc(loggedInRef, {
+      following:updatedFollowing
+    });
 
+
+    //  remove the current profiles uid to the logged in users following array
+    let updatedFollowers = currentProfileFollowers?.filter(uid => uid !== loggedInProfileUid)
+    const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+    await updateDoc(currentProfileRef, {
+      followers:updatedFollowers
+    });
+
+    dispatch({type:"UPDATE_IS_FOLLOWING", payload:false})
   }
+
+
+
+
+
 
 /*check if the logged in user & the profile page
 this person is visiting are the same*/
@@ -156,13 +181,9 @@ this person is visiting are the same*/
 - args 1 & 2 both strings,
 - return a boolean*/
   const checkIfFollowing = (currentProfileUserData, loggedInUserData) => {
-    // is the logged in user uid in the current profile followers list
-    // AND is the current profile uid in the logged in users following list
-    console.log(loggedInUserData?.uid)
-    console.log(loggedInUserData?.following)
-
-    console.log(currentProfileUserData?.uid)
-    console.log(currentProfileUserData?.followers)
+    if(loggedInUserData?.uid && loggedInUserData?.following && currentProfileUserData?.uid && currentProfileUserData?.followers) {
+      dispatch({type:"UPDATE_IS_FOLLOWING", payload:currentProfileUserData?.followers.includes(loggedInUserData?.uid) && loggedInUserData?.following.includes(currentProfileUserData?.uid)})
+    }
   }
 
 
