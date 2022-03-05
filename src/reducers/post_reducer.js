@@ -6,6 +6,8 @@ import {
   TOGGLE_PROFILE_DROPDOWN,
   TOGGLE_NAVIGATION_ICON_HOME_VALUE,
   TOGGLE_NAVIGATION_ICON_EXPLORE_VALUE,
+  FOLLOW_USER,
+  UNFOLLOW_USER,
 } from '../actions'
 
 import { collection, getDocs } from "firebase/firestore"; 
@@ -71,8 +73,13 @@ const post_reducer = (state, action) => {
     return {...state, loggedInUserData:data}
   }
 
-  if(action.type === "UPDATE_IS_FOLLOWING") {
-    return {...state, isFollowing:action.payload}
+
+  if(action.type === FOLLOW_USER) {
+    return {...state, isFollowingTest:true}
+  }
+
+  if(action.type === UNFOLLOW_USER) {
+    return {...state, isFollowingTest:false}
   }
 
 

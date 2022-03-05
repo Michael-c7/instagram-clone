@@ -14,6 +14,8 @@ import {
   TOGGLE_PROFILE_DROPDOWN,
   TOGGLE_NAVIGATION_ICON_HOME_VALUE,
   TOGGLE_NAVIGATION_ICON_EXPLORE_VALUE,
+  FOLLOW_USER,
+  UNFOLLOW_USER,
 } from '../actions'
 
 import {
@@ -33,6 +35,8 @@ let initialState = {
   navigationIconExplore:false,
   showProfileDropdown:false,
   isFollowing:false,
+
+  isFollowingTest:false,
 }
 
 const PostContext = React.createContext()
@@ -102,73 +106,6 @@ export const PostProvider = ({ children }) => {
     dispatch({type:"GET_LOGGED_IN_USER_DATA"})
   }
 
-// currentProfileUserData & loggedInUserData : object of the data
-  const followUser = async (currentProfileUserData, loggedInUserData) => {
-    const {
-      documentId:currentProfileDocumentId,
-      uid:currentProfileUid,
-      followers:currentProfileFollowers,
-    } = currentProfileUserData;
-    const {
-      documentId:loggedInProfileDocumentId,
-      uid:loggedInProfileUid,
-      following:loggedInProfileFollowing,
-    } = loggedInUserData;
-
-    //  add the logged in users uid to the current profiles followers array
-    const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
-    await updateDoc(loggedInRef, {
-      following:[...loggedInProfileFollowing, currentProfileUid]
-    });
-
-    //  add the current profiles uid to the logged in users following array
-    const currentProfileRef = doc(db, "users", currentProfileDocumentId);
-    await updateDoc(currentProfileRef, {
-      followers:[...currentProfileFollowers, loggedInProfileUid]
-    });
-    dispatch({type:"UPDATE_IS_FOLLOWING", payload:true})
-  }
-
-
-
-  const unFollowUser = async (currentProfileUserData, loggedInUserData) => {
-    // do what you did in followUser func but instead of adding, just remove
-    const {
-      documentId:currentProfileDocumentId,
-      uid:currentProfileUid,
-      followers:currentProfileFollowers,
-    } = currentProfileUserData;
-    const {
-      documentId:loggedInProfileDocumentId,
-      uid:loggedInProfileUid,
-      following:loggedInProfileFollowing,
-    } = loggedInUserData;
-
-
-
-    //  remove the logged in users uid to the current profiles followers array
-    let updatedFollowing = loggedInProfileFollowing?.filter(uid => uid !== currentProfileUid)
-    
-    const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
-    await updateDoc(loggedInRef, {
-      following:updatedFollowing
-    });
-
-
-    //  remove the current profiles uid to the logged in users following array
-    let updatedFollowers = currentProfileFollowers?.filter(uid => uid !== loggedInProfileUid)
-    const currentProfileRef = doc(db, "users", currentProfileDocumentId);
-    await updateDoc(currentProfileRef, {
-      followers:updatedFollowers
-    });
-
-    dispatch({type:"UPDATE_IS_FOLLOWING", payload:false})
-  }
-
-
-
-
-
 
 /*check if the logged in user & the profile page
 this person is visiting are the same*/
@@ -182,8 +119,80 @@ this person is visiting are the same*/
 - return a boolean*/
   const checkIfFollowing = (currentProfileUserData, loggedInUserData) => {
     if(loggedInUserData?.uid && loggedInUserData?.following && currentProfileUserData?.uid && currentProfileUserData?.followers) {
-      dispatch({type:"UPDATE_IS_FOLLOWING", payload:currentProfileUserData?.followers.includes(loggedInUserData?.uid) && loggedInUserData?.following.includes(currentProfileUserData?.uid)})
+      if(currentProfileUserData?.followers.includes(loggedInUserData?.uid) && loggedInUserData?.following.includes(currentProfileUserData?.uid)) {
+        dispatch({type:FOLLOW_USER})
+      } else {
+        dispatch({type:UNFOLLOW_USER})
+      }
     }
+  }
+
+
+
+
+
+
+  const followUser = async (currentProfileUserData, loggedInUserData) => {
+    const {
+      documentId:currentProfileDocumentId,
+      uid:currentProfileUid,
+      followers:currentProfileFollowers,
+    } = currentProfileUserData;
+    const {
+      documentId:loggedInProfileDocumentId,
+      uid:loggedInProfileUid,
+      following:loggedInProfileFollowing,
+    } = loggedInUserData;
+
+
+    //  add the logged in users uid to the current profiles followers array
+    const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
+    await updateDoc(loggedInRef, {
+      following:[...loggedInProfileFollowing, currentProfileUid]
+    });
+
+    //  add the current profiles uid to the logged in users following array
+    const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+    await updateDoc(currentProfileRef, {
+      followers:[...currentProfileFollowers, loggedInProfileUid]
+    });
+
+    dispatch({type:FOLLOW_USER})
+  }
+
+
+
+
+
+
+  const unFollowUser = async (currentProfileUserData, loggedInUserData) => {
+    const {
+      documentId:currentProfileDocumentId,
+      uid:currentProfileUid,
+      followers:currentProfileFollowers,
+    } = currentProfileUserData;
+    const {
+      documentId:loggedInProfileDocumentId,
+      uid:loggedInProfileUid,
+      following:loggedInProfileFollowing,
+    } = loggedInUserData;
+
+    //  remove the logged in users uid to the current profiles followers array
+    let updatedFollowing = loggedInProfileFollowing?.filter(uid => uid !== currentProfileUid)
+    
+    const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
+    await updateDoc(loggedInRef, {
+      following:updatedFollowing
+    });
+
+    //  remove the current profiles uid to the logged in users following array
+    let updatedFollowers = currentProfileFollowers?.filter(uid => uid !== loggedInProfileUid)
+    const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+    await updateDoc(currentProfileRef, {
+      followers:updatedFollowers
+    });
+
+    dispatch({type:UNFOLLOW_USER})
   }
 
 
@@ -242,7 +251,7 @@ this person is visiting are the same*/
   //   fetchProducts(url)
   // }, [])
 
-
+  
 
   return (
     <PostContext.Provider value={
@@ -255,11 +264,11 @@ this person is visiting are the same*/
         toggleProfileDropdown,
         toggleNavigationIconHome,
         toggleNavigationIconExplore,
-        followUser,
-        unFollowUser,
         checkCurrentUser,
         getLoggedInUserData,
         checkIfFollowing,
+        followUser,
+        unFollowUser,
       }}>
       {children}
     </PostContext.Provider>

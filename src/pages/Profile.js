@@ -15,8 +15,6 @@ const Profile = () => {
     getUsersData,
     toggleNavigationIconHome,
     toggleNavigationIconExplore,
-    followUser,
-    unFollowUser,
     loggedInUserSameAsCurrentProfile,
     checkCurrentUser,
     getLoggedInUserData,
@@ -24,8 +22,10 @@ const Profile = () => {
     loggedInUid,
     checkIfFollowing,
     isFollowing,
+    isFollowingTest,
+    followUser,
+    unFollowUser,
   } = usePostContext()
-  // let [isFollowing, setIsFollowing] = React.useState(false)
   const [currentUser, setCurrentUser] = useState({})
   const [currentUserFollowerCount, setCurrentUserFollowerCount] = useState(0)
   const [currentUserFollowingCount, setCurrentUserFollowingCount] = useState(0)
@@ -37,30 +37,31 @@ const Profile = () => {
     return user[0]
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     getUsersData()
     toggleNavigationIconHome(false)
     toggleNavigationIconExplore(false)
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentUser(getSpecificUser(uidFromUrl, usersData))
-    
-    
   }, [usersData])
-
-  React.useEffect(() => {
-    checkCurrentUser(uidFromUrl)
-  }, [loggedInUserSameAsCurrentProfile])
 
 
   useEffect(() => {
+    checkCurrentUser(uidFromUrl)
     checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
 
     setCurrentUserFollowerCount(currentUser?.followers?.length)
     setCurrentUserFollowingCount(currentUser?.following?.length)
 
-  }, [currentUser, isFollowing])
+  }, [currentUser, isFollowing, loggedInUserSameAsCurrentProfile])
+
+
+  useEffect(() => {
+    checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
+  }, [currentUser, isFollowing, loggedInUserSameAsCurrentProfile])
+
 
 
   /*
@@ -86,11 +87,10 @@ const Profile = () => {
 
             <div className="profile__content">
               <header className="content__header">
-                <h2 className="header__username">{currentUser?.username ? currentUser?.username : "user not found"}</h2>
+                <h2 className="header__username">{currentUser?.username ? currentUser?.username : ""}</h2>
                 {/*Follow button*/}
-                {!loggedInUserSameAsCurrentProfile && isFollowing ? <button className="form-login-btn follow-btn following" onClick={() => unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData))}>Following</button> : ""}
-                {!loggedInUserSameAsCurrentProfile && !isFollowing ? <button className="form-login-btn follow-btn" onClick={() => followUser(currentUser, getSpecificUser(loggedInUid, usersData))}>Follow</button> : ""}
-
+                {!loggedInUserSameAsCurrentProfile && isFollowingTest ? <button className="form-login-btn follow-btn following" onClick={() => unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData))}>Following</button> : ""}
+                {!loggedInUserSameAsCurrentProfile && !isFollowingTest ? <button className="form-login-btn follow-btn" onClick={() => followUser(currentUser, getSpecificUser(loggedInUid, usersData))}>Follow</button> : ""}
               </header>
               <div className="profile__content__info">
                 <p className="content__info__item info__posts"><span>{currentUser?.posts?.length ? currentUser?.posts?.length : 0}</span> posts</p>
