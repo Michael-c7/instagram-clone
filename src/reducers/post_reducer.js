@@ -8,6 +8,8 @@ import {
   TOGGLE_NAVIGATION_ICON_EXPLORE_VALUE,
   FOLLOW_USER,
   UNFOLLOW_USER,
+  FOLLOW_BUTTON_LOADING_START,
+  FOLLOW_BUTTON_LOADING_STOP,
 } from '../actions'
 
 import { collection, getDocs } from "firebase/firestore"; 
@@ -82,6 +84,13 @@ const post_reducer = (state, action) => {
     return {...state, isFollowingTest:false}
   }
 
+  if(action.type === FOLLOW_BUTTON_LOADING_START) {
+    return {...state, followButtonLoading:true}
+  }
+
+  if(action.type === FOLLOW_BUTTON_LOADING_STOP) {
+    return {...state, followButtonLoading:false}
+  }
 
   // return state
   throw new Error(`No Matching "${action.type}" - action type`)

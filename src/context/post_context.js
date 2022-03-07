@@ -16,6 +16,8 @@ import {
   TOGGLE_NAVIGATION_ICON_EXPLORE_VALUE,
   FOLLOW_USER,
   UNFOLLOW_USER,
+  FOLLOW_BUTTON_LOADING_START,
+  FOLLOW_BUTTON_LOADING_STOP,
 } from '../actions'
 
 import {
@@ -36,7 +38,8 @@ let initialState = {
   showProfileDropdown:false,
   isFollowing:false,
 
-  isFollowingTest:false,
+  
+  followButtonLoading:false,
 }
 
 const PostContext = React.createContext()
@@ -142,22 +145,29 @@ this person is visiting are the same*/
       documentId:loggedInProfileDocumentId,
       uid:loggedInProfileUid,
       following:loggedInProfileFollowing,
-    } = loggedInUserData;
+    } = loggedInUserData;    
+    
+    dispatch({type:FOLLOW_BUTTON_LOADING_START})
 
+    try {
+      //  add the logged in users uid to the current profiles followers array
+      const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
+      await updateDoc(loggedInRef, {
+        following:[...loggedInProfileFollowing, currentProfileUid]
+      });
 
-    //  add the logged in users uid to the current profiles followers array
-    const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
-    await updateDoc(loggedInRef, {
-      following:[...loggedInProfileFollowing, currentProfileUid]
-    });
+      //  add the current profiles uid to the logged in users following array
+      const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+      await updateDoc(currentProfileRef, {
+        followers:[...currentProfileFollowers, loggedInProfileUid]
+      });
 
-    //  add the current profiles uid to the logged in users following array
-    const currentProfileRef = doc(db, "users", currentProfileDocumentId);
-    await updateDoc(currentProfileRef, {
-      followers:[...currentProfileFollowers, loggedInProfileUid]
-    });
+      dispatch({type:FOLLOW_USER})
+      dispatch({type:FOLLOW_BUTTON_LOADING_STOP})
 
-    dispatch({type:FOLLOW_USER})
+    } catch(error) {
+      console.log(error.message)
+    }
   }
 
 
@@ -177,22 +187,30 @@ this person is visiting are the same*/
       following:loggedInProfileFollowing,
     } = loggedInUserData;
 
-    //  remove the logged in users uid to the current profiles followers array
-    let updatedFollowing = loggedInProfileFollowing?.filter(uid => uid !== currentProfileUid)
-    
-    const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
-    await updateDoc(loggedInRef, {
-      following:updatedFollowing
-    });
+    try {
+      dispatch({type:FOLLOW_BUTTON_LOADING_START})
 
-    //  remove the current profiles uid to the logged in users following array
-    let updatedFollowers = currentProfileFollowers?.filter(uid => uid !== loggedInProfileUid)
-    const currentProfileRef = doc(db, "users", currentProfileDocumentId);
-    await updateDoc(currentProfileRef, {
-      followers:updatedFollowers
-    });
+      //  remove the logged in users uid to the current profiles followers array
+      let updatedFollowing = loggedInProfileFollowing?.filter(uid => uid !== currentProfileUid)
+      
+      const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
+      await updateDoc(loggedInRef, {
+        following:updatedFollowing
+      });
+
+      //  remove the current profiles uid to the logged in users following array
+      let updatedFollowers = currentProfileFollowers?.filter(uid => uid !== loggedInProfileUid)
+      const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+      await updateDoc(currentProfileRef, {
+        followers:updatedFollowers
+      });
+    } catch(error) {
+      console.log(error.message)
+    }
+    
 
     dispatch({type:UNFOLLOW_USER})
+    dispatch({type:FOLLOW_BUTTON_LOADING_STOP})
   }
 
 

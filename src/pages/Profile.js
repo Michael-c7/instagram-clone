@@ -4,7 +4,7 @@ import CreatePost from '../components/createPost';
 import { usePostContext } from "../context/post_context"
 import Navbar from "../components/Navbar"
 import { useParams, Link } from 'react-router-dom'
-
+import Loading from '../components/LoadingText';
 
 const Profile = () => {
   const {
@@ -25,10 +25,12 @@ const Profile = () => {
     isFollowingTest,
     followUser,
     unFollowUser,
+    followButtonLoading,
   } = usePostContext()
   const [currentUser, setCurrentUser] = useState({})
   const [currentUserFollowerCount, setCurrentUserFollowerCount] = useState(0)
   const [currentUserFollowingCount, setCurrentUserFollowingCount] = useState(0)
+
 
   const { id:uidFromUrl } = useParams()
 
@@ -89,8 +91,8 @@ const Profile = () => {
               <header className="content__header">
                 <h2 className="header__username">{currentUser?.username ? currentUser?.username : ""}</h2>
                 {/*Follow button*/}
-                {!loggedInUserSameAsCurrentProfile && isFollowingTest ? <button className="form-login-btn follow-btn following" onClick={() => unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData))}>Following</button> : ""}
-                {!loggedInUserSameAsCurrentProfile && !isFollowingTest ? <button className="form-login-btn follow-btn" onClick={() => followUser(currentUser, getSpecificUser(loggedInUid, usersData))}>Follow</button> : ""}
+                {!loggedInUserSameAsCurrentProfile && isFollowingTest ? <button className="form-login-btn follow-btn following" onClick={() => unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData))}>{followButtonLoading ? <Loading/> : "Following"}</button> : ""}
+                {!loggedInUserSameAsCurrentProfile && !isFollowingTest ? <button className="form-login-btn follow-btn" onClick={() => followUser(currentUser, getSpecificUser(loggedInUid, usersData))}>{followButtonLoading ? <Loading/> : "Follow"}</button> : ""}
               </header>
               <div className="profile__content__info">
                 <p className="content__info__item info__posts"><span>{currentUser?.posts?.length ? currentUser?.posts?.length : 0}</span> posts</p>
