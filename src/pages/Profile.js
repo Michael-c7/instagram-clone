@@ -22,15 +22,14 @@ const Profile = () => {
     loggedInUid,
     checkIfFollowing,
     isFollowing,
-    isFollowingTest,
     followUser,
     unFollowUser,
     followButtonLoading,
+    currentProfileFollowers,
+    currentProfileFollowing,
   } = usePostContext()
+  
   const [currentUser, setCurrentUser] = useState({})
-  const [currentUserFollowerCount, setCurrentUserFollowerCount] = useState(0)
-  const [currentUserFollowingCount, setCurrentUserFollowingCount] = useState(0)
-
 
   const { id:uidFromUrl } = useParams()
 
@@ -51,18 +50,32 @@ const Profile = () => {
 
 
   useEffect(() => {
+    /*
+    checks if the current profile is the logged in user.
+    used to determine if it should show the follow / following button or not,
+    because it wouldn't make sense to follow yourself 
+    */
     checkCurrentUser(uidFromUrl)
-    checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
-
-    setCurrentUserFollowerCount(currentUser?.followers?.length)
-    setCurrentUserFollowingCount(currentUser?.following?.length)
-
-  }, [currentUser, isFollowing, loggedInUserSameAsCurrentProfile])
+  }, [currentUser])
 
 
   useEffect(() => {
+    // used to check if the logged in user is following the current profile user
     checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
-  }, [currentUser, isFollowing, loggedInUserSameAsCurrentProfile])
+    // console.log(isFollowing)
+  }, [currentUser])
+
+
+
+  // useEffect(() => {
+  //   setCurrentFollowerCount(currentUser?.followers?.length)
+  //   setCurrentFollowingCount(currentUser?.following?.length)
+  // }, [isFollowing])
+
+
+  // useEffect(() => {
+  //   checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
+  // }, [currentUser, isFollowing, loggedInUserSameAsCurrentProfile])
 
 
 
@@ -90,15 +103,20 @@ const Profile = () => {
             <div className="profile__content">
               <header className="content__header">
                 <h2 className="header__username">{currentUser?.username ? currentUser?.username : ""}</h2>
+
+                
+
                 {/*Follow button*/}
-                {!loggedInUserSameAsCurrentProfile && isFollowingTest ? <button className="form-login-btn follow-btn following" onClick={() => unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData))}>{followButtonLoading ? <Loading/> : "Following"}</button> : ""}
-                {!loggedInUserSameAsCurrentProfile && !isFollowingTest ? <button className="form-login-btn follow-btn" onClick={() => followUser(currentUser, getSpecificUser(loggedInUid, usersData))}>{followButtonLoading ? <Loading/> : "Follow"}</button> : ""}
+                  {!loggedInUserSameAsCurrentProfile && !isFollowing ? <button className="form-login-btn follow-btn" onClick={() => followUser(currentUser, getSpecificUser(loggedInUid, usersData))}>{followButtonLoading ? <Loading/> : "Follow"}</button> : ""}
+                {/*Following button / unfollow button*/}
+                  {!loggedInUserSameAsCurrentProfile && isFollowing ? <button className="form-login-btn follow-btn following" onClick={() => unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData))}>{followButtonLoading ? <Loading/> : "Following"}</button> : ""}
               </header>
               <div className="profile__content__info">
                 <p className="content__info__item info__posts"><span>{currentUser?.posts?.length ? currentUser?.posts?.length : 0}</span> posts</p>
-                <p className="content__info__item info__followers"><span>{currentUserFollowerCount}</span> follower{currentUserFollowerCount === 1 ? "" : "s"}</p>
-                <p className="content__info__item info__following"><span>{currentUserFollowingCount}</span> following</p>
+                <p className="content__info__item info__followers"><span>{currentProfileFollowers}</span> follower{currentUser?.followers?.length === 1 ? "" : "s"}</p>
+                <p className="content__info__item info__following"><span>{currentProfileFollowing}</span> following</p>
               </div>
+              
 
               {/* <p className="content__description">
                 this text is an example of the text in the description.
@@ -111,7 +129,6 @@ const Profile = () => {
               currentUser?.posts.map((post, index) => {
                 const {userImage:{src:image}, description} = JSON.parse(post)
                 // console.log(JSON.parse(post))
-
                 return (
                   <li className="posts__post" key={index}>
                     <Link className="posts__post__link" to={`/p/${index}`}>

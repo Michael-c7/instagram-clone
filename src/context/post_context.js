@@ -5,7 +5,7 @@ import { collection, query, where, getDocs, doc, updateDoc  } from "firebase/fir
 import { AppAuth, db } from "../Auth/firebase"
 import { v4 as uuidv4 } from 'uuid';
 // import { products_url as url } from '../utils/constants' 
-
+import { deleteDuplicates } from "../utils/helper"
 import {
   CREATE_POST_MODAL_OPEN,
   CREATE_POST_MODAL_CLOSE,
@@ -37,9 +37,11 @@ let initialState = {
   navigationIconExplore:false,
   showProfileDropdown:false,
   isFollowing:false,
-
+  currentProfileFollowers:0,
+  currentProfileFollowing:0,
   
   followButtonLoading:false,
+  
 }
 
 const PostContext = React.createContext()
@@ -149,28 +151,56 @@ this person is visiting are the same*/
     
     dispatch({type:FOLLOW_BUTTON_LOADING_START})
 
-    try {
-      //  add the logged in users uid to the current profiles followers array
-      const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
-      await updateDoc(loggedInRef, {
-        following:[...loggedInProfileFollowing, currentProfileUid]
-      });
+    if(!checkIfFollowing(currentProfileUserData, loggedInUserData)) {
 
-      //  add the current profiles uid to the logged in users following array
-      const currentProfileRef = doc(db, "users", currentProfileDocumentId);
-      await updateDoc(currentProfileRef, {
-        followers:[...currentProfileFollowers, loggedInProfileUid]
-      });
-
+      try {
+        //  add the logged in users uid to the current profiles followers array
+        const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
+        await updateDoc(loggedInRef, {
+          following:[...loggedInProfileFollowing, currentProfileUid]
+        });
+  
+        //  add the current profiles uid to the logged in users following array
+        const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+        await updateDoc(currentProfileRef, {
+          followers:[...currentProfileFollowers, loggedInProfileUid]
+        });
+  
+        dispatch({type:FOLLOW_BUTTON_LOADING_STOP})
+      } catch(error) {
+        console.log(error.message)
+      }
       dispatch({type:FOLLOW_USER})
-      dispatch({type:FOLLOW_BUTTON_LOADING_STOP})
+      
+      updateFollowingAndFollowerCount(currentProfileUserData)
 
-    } catch(error) {
-      console.log(error.message)
+      
+
+
+    } else {
+      // do nothing
+      console.log(`
+        The logged in user ${loggedInProfileUid} UID
+        tried to follow user the current profile user ${currentProfileUid} UID,
+        but something went wrong.
+        This message gets triggered when the 
+        checkIfFollowing function  in the followUser function
+        evaluates to false`
+      )
     }
+
+    
   }
 
 
+
+  const updateFollowingAndFollowerCount = currentProfileUserData => {
+     // update followers count for the current profile
+     dispatch({type:"UPDATE_FOLLOWER_COUNT", payload:currentProfileUserData?.followers?.length})
+
+     // update following count for the current profile
+     dispatch({type:"UPDATE_FOLLOWING_COUNT", payload:currentProfileUserData?.following?.length})
+  }
 
 
 
@@ -187,30 +217,41 @@ this person is visiting are the same*/
       following:loggedInProfileFollowing,
     } = loggedInUserData;
 
-    try {
-      dispatch({type:FOLLOW_BUTTON_LOADING_START})
-
-      //  remove the logged in users uid to the current profiles followers array
-      let updatedFollowing = loggedInProfileFollowing?.filter(uid => uid !== currentProfileUid)
-      
-      const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
-      await updateDoc(loggedInRef, {
-        following:updatedFollowing
-      });
-
-      //  remove the current profiles uid to the logged in users following array
-      let updatedFollowers = currentProfileFollowers?.filter(uid => uid !== loggedInProfileUid)
-      const currentProfileRef = doc(db, "users", currentProfileDocumentId);
-      await updateDoc(currentProfileRef, {
-        followers:updatedFollowers
-      });
-    } catch(error) {
-      console.log(error.message)
+    if(!checkIfFollowing(currentProfileUserData, loggedInUserData)) {
+      try {
+        dispatch({type:FOLLOW_BUTTON_LOADING_START})
+  
+        //  remove the logged in users uid to the current profiles followers array
+        let updatedFollowing = loggedInProfileFollowing?.filter(uid => uid !== currentProfileUid)
+        
+        const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
+        await updateDoc(loggedInRef, {
+          following:updatedFollowing
+        });
+  
+        //  remove the current profiles uid to the logged in users following array
+        let updatedFollowers = currentProfileFollowers?.filter(uid => uid !== loggedInProfileUid)
+        const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+        await updateDoc(currentProfileRef, {
+          followers:updatedFollowers,
+        });
+      } catch(error) {
+        console.log(error.message)
+      }
+  
+      dispatch({type:UNFOLLOW_USER})
+      dispatch({type:FOLLOW_BUTTON_LOADING_STOP})
+    } else {
+      // do nothing
+      console.log(`
+        The logged in user ${loggedInProfileUid} UID
+        tried to follow user the current profile user ${currentProfileUid} UID,
+        but something went wrong.
+        This message gets triggered when the 
+        checkIfFollowing function  in the unFollowUser function
+        evaluates to true`
+      )
     }
-    
-
-    dispatch({type:UNFOLLOW_USER})
-    dispatch({type:FOLLOW_BUTTON_LOADING_STOP})
   }
 
 

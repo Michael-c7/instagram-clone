@@ -4,7 +4,9 @@ import styled from "styled-components"
 const LoadingSpinner = () => {
   return (
     <Wrapper>
-        <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        <div class="lds-spinner"><div>
+            </div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+        </div>
     </Wrapper>
   )
 }

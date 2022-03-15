@@ -45,9 +45,18 @@ const UUIDGeneratorBrowser = () =>
 
 
 
+const deleteDuplicates = (arrayWithDuplicates) => { 
+  let arrayWithUniqueItems = [...new Set(arrayWithDuplicates)];
+  return arrayWithUniqueItems;
+}
+
+
+
+
 
 export {
   getCurrentDay,
   formatBytes,
   UUIDGeneratorBrowser,
+  deleteDuplicates,
 }

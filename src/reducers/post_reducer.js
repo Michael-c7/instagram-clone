@@ -77,11 +77,14 @@ const post_reducer = (state, action) => {
 
 
   if(action.type === FOLLOW_USER) {
-    return {...state, isFollowingTest:true}
+    return {...state, isFollowing:state.isFollowing = true} 
   }
 
   if(action.type === UNFOLLOW_USER) {
-    return {...state, isFollowingTest:false}
+    // return {...state, isFollowing:false}
+    return {...state, isFollowing:state.isFollowing = false} 
+
+
   }
 
   if(action.type === FOLLOW_BUTTON_LOADING_START) {
@@ -90,6 +93,18 @@ const post_reducer = (state, action) => {
 
   if(action.type === FOLLOW_BUTTON_LOADING_STOP) {
     return {...state, followButtonLoading:false}
+  }
+
+  
+  
+  if("UPDATE_FOLLOWER_COUNT") {
+    console.log("update follower count")
+    return {...state, currentProfileFollowers:state.currentProfileFollowers = action.payload}
+  }
+
+  if("UPDATE_FOLLOWING_COUNT") {
+    console.log("update following count")
+    return {...state, currentProfileFollowing:state.currentProfileFollowing = action.payload}
   }
 
   // return state
