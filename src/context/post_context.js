@@ -174,9 +174,6 @@ this person is visiting are the same*/
       
       updateFollowingAndFollowerCount(currentProfileUserData)
 
-      
-
-
     } else {
       // do nothing
       console.log(`
@@ -195,8 +192,13 @@ this person is visiting are the same*/
 
 
   const updateFollowingAndFollowerCount = currentProfileUserData => {
+    // need to access the old state
+    // console.log("followers " + currentProfileUserData?.followers.length)
+    // console.log("following " + currentProfileUserData?.following.length)
+
      // update followers count for the current profile
      dispatch({type:"UPDATE_FOLLOWER_COUNT", payload:currentProfileUserData?.followers?.length})
+    
 
      // update following count for the current profile
      dispatch({type:"UPDATE_FOLLOWING_COUNT", payload:currentProfileUserData?.following?.length})
@@ -241,6 +243,8 @@ this person is visiting are the same*/
   
       dispatch({type:UNFOLLOW_USER})
       dispatch({type:FOLLOW_BUTTON_LOADING_STOP})
+
+      updateFollowingAndFollowerCount(currentProfileUserData)
     } else {
       // do nothing
       console.log(`

@@ -30,6 +30,9 @@ const Profile = () => {
   } = usePostContext()
   
   const [currentUser, setCurrentUser] = useState({})
+  const [followerCount, setFollowerCount] = useState(null)
+  const [followingCount, setFollowingCount] = useState(null)
+
 
   const { id:uidFromUrl } = useParams()
 
@@ -63,6 +66,16 @@ const Profile = () => {
     // used to check if the logged in user is following the current profile user
     checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
     // console.log(isFollowing)
+
+  
+
+      setFollowerCount(currentUser?.followers?.length)
+      setFollowingCount(currentUser?.following?.length)
+
+
+      // console.log(
+      //   followerCount,
+      //   followingCount)
   }, [currentUser])
 
 
@@ -89,6 +102,58 @@ const Profile = () => {
   */
 
 
+  const followBtnLogic = _ => {
+    followUser(currentUser, getSpecificUser(loggedInUid, usersData));
+    if(followerCount <= 0) {
+      setFollowerCount((prevCount) => prevCount = 0)
+    } 
+    
+    setFollowerCount((prevCount) => prevCount + 1)
+  }
+
+  const unFollowBtnLogic = _ => {
+    unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData));
+    if(followerCount < 0) {
+      setFollowerCount((prevCount) => prevCount = 0)
+    } 
+    
+    setFollowerCount((prevCount) => prevCount - 1)
+  }
+
+  const followAndUnFollowButton = _ => {
+  // follow
+    if(!loggedInUserSameAsCurrentProfile && !isFollowing) {
+      if(followButtonLoading) {
+        return (
+          <button className="form-login-btn follow-btn" disabled><Loading/></button>
+        )
+      }
+        return (
+          <button className="form-login-btn follow-btn" onClick={followBtnLogic}>Follow</button>
+
+        )
+  // following / unfollow
+    } else if(!loggedInUserSameAsCurrentProfile && isFollowing) {
+      if(followButtonLoading) {
+        return (
+          <button className="form-login-btn follow-btn following" disabled><Loading/></button>
+        )
+      }
+        return (
+          <button className="form-login-btn follow-btn following" onClick={unFollowBtnLogic}>Following</button>
+        )
+      
+    }
+
+
+  }
+
+  const unFollowBtn = _ => {
+
+  }
+
+
+
   return (
     <Wrapper>
       {isCreatePostModalOpen ? <CreatePost/> : ""}
@@ -103,24 +168,17 @@ const Profile = () => {
             <div className="profile__content">
               <header className="content__header">
                 <h2 className="header__username">{currentUser?.username ? currentUser?.username : ""}</h2>
-
-                
-
                 {/*Follow button*/}
-                  {!loggedInUserSameAsCurrentProfile && !isFollowing ? <button className="form-login-btn follow-btn" onClick={() => followUser(currentUser, getSpecificUser(loggedInUid, usersData))}>{followButtonLoading ? <Loading/> : "Follow"}</button> : ""}
+                  {/* {!loggedInUserSameAsCurrentProfile && !isFollowing ? <button disabled className="form-login-btn follow-btn" onClick={followBtnLogic}>{followButtonLoading ? <Loading/> : "Follow"}</button> : ""} */}
                 {/*Following button / unfollow button*/}
-                  {!loggedInUserSameAsCurrentProfile && isFollowing ? <button className="form-login-btn follow-btn following" onClick={() => unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData))}>{followButtonLoading ? <Loading/> : "Following"}</button> : ""}
+                  {/* {!loggedInUserSameAsCurrentProfile && isFollowing ? <button  className="form-login-btn follow-btn following" onClick={unFollowBtnLogic}>{followButtonLoading ? <Loading/> : "Following"}</button> : ""} */}
+                {followAndUnFollowButton()}
               </header>
               <div className="profile__content__info">
                 <p className="content__info__item info__posts"><span>{currentUser?.posts?.length ? currentUser?.posts?.length : 0}</span> posts</p>
-                <p className="content__info__item info__followers"><span>{currentProfileFollowers}</span> follower{currentUser?.followers?.length === 1 ? "" : "s"}</p>
-                <p className="content__info__item info__following"><span>{currentProfileFollowing}</span> following</p>
+                <p className="content__info__item info__followers"><span>{followerCount}</span> follower{followerCount === 1 ? "" : "s"}</p>
+                <p className="content__info__item info__following"><span>{followingCount}</span> following</p>
               </div>
-              
-
-              {/* <p className="content__description">
-                this text is an example of the text in the description.
-              </p> */}
             </div>
           </div>
 
@@ -208,11 +266,19 @@ const Wrapper = styled.div`
       cursor:pointer;
     }
 
+    .follow-btn [disabled] {
+      background:var(--login-btn-bg)
+    }
+
     .following {
       background:none;
       color:#000;
       font-weight:600;
       border:1px solid var(--gray-db);
+    }
+
+    .following[disabled] {
+      opacity:0.5;
     }
 
     .edit-profile-btn {

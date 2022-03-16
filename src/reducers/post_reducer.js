@@ -97,14 +97,19 @@ const post_reducer = (state, action) => {
 
   
   
-  if("UPDATE_FOLLOWER_COUNT") {
+  if(action.type === "UPDATE_FOLLOWER_COUNT") {
     console.log("update follower count")
-    return {...state, currentProfileFollowers:state.currentProfileFollowers = action.payload}
+    // return {...state, currentProfileFollowers:state.currentProfileFollowers = action.payload}
+    // return {...state, currentProfileFollowers:action.payload}
+    return {...state,}
+    
   }
 
-  if("UPDATE_FOLLOWING_COUNT") {
+  if(action.type === "UPDATE_FOLLOWING_COUNT") {
     console.log("update following count")
-    return {...state, currentProfileFollowing:state.currentProfileFollowing = action.payload}
+    // return {...state, currentProfileFollowing:state.currentProfileFollowing = action.payload}
+    // return {...state, currentProfileFollowing:action.payload}
+    return {...state,}
   }
 
   // return state
