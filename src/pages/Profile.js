@@ -5,6 +5,8 @@ import { usePostContext } from "../context/post_context"
 import Navbar from "../components/Navbar"
 import { useParams, Link } from 'react-router-dom'
 import Loading from '../components/LoadingText';
+import { getSpecificUser } from "../utils/helper"
+import defaultImage from "../utils/images/default-user.jpg"
 
 const Profile = () => {
   const {
@@ -28,11 +30,7 @@ const Profile = () => {
   const [followingCount, setFollowingCount] = useState(null)
 
   const { id:uidFromUrl } = useParams()
-
-  const getSpecificUser = (userUid, userData) => {
-    let user = userData.filter(user => user.uid === userUid)
-    return user[0]
-  }
+  
 
   useEffect(() => {
     getUsersData()
@@ -52,18 +50,17 @@ const Profile = () => {
     because it wouldn't make sense to follow yourself 
     */
     checkCurrentUser(uidFromUrl)
-  }, [currentUser])
 
-
-  useEffect(() => {
-    // used to check if the logged in user is following the current profile user
+    /*
+    used to check if the logged in user
+    is following the current profile user
+    */
     checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
 
+    // set follower & following count
     setFollowerCount(currentUser?.followers?.length)
     setFollowingCount(currentUser?.following?.length)
   }, [currentUser])
-
-
 
 
   const followBtnLogic = _ => {
@@ -80,7 +77,7 @@ const Profile = () => {
     unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData));
     setTimeout(() => {
       if(!followButtonLoading) {
-        if(followerCount < 0) {
+        if(followerCount <= 0) {
           setFollowerCount((prevCount) => prevCount = 0)
         }
         setFollowerCount((prevCount) => prevCount - 1)
@@ -88,7 +85,7 @@ const Profile = () => {
     }, 500)
   }
 
-  const followAndUnFollowButton = _ => {
+  const followAndUnFollowButtonEl = _ => {
   // follow
     if(!loggedInUserSameAsCurrentProfile && !isFollowing) {
       if(followButtonLoading) {
@@ -122,13 +119,12 @@ const Profile = () => {
         <div className="profile__inner">
           <div className="profile__profile">
             <div className="profile-img-container">
-              <img className="profile__profile-img" src={currentUser?.profile_image ? currentUser?.profile_image : "https://images.unsplash.com/photo-1544502062-f82887f03d1c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1259&q=80"} alt={`${currentUser?.username} profile`}/>
+              <img className="profile__profile-img" src={currentUser?.profile_image ? currentUser?.profile_image : defaultImage} alt={`${currentUser?.username} profile`}/>
             </div>
-
             <div className="profile__content">
               <header className="content__header">
                 <h2 className="header__username">{currentUser?.username ? currentUser?.username : ""}</h2>
-                {followAndUnFollowButton()}
+                {followAndUnFollowButtonEl()}
               </header>
               <div className="profile__content__info">
                 <p className="content__info__item info__posts"><span>{currentUser?.posts?.length ? currentUser?.posts?.length : 0}</span> posts</p>
@@ -141,11 +137,10 @@ const Profile = () => {
           <ul className="profile__posts">
             {currentUser?.posts?.length >= 1 ? (
               currentUser?.posts.map((post, index) => {
-                const {userImage:{src:image}, description} = JSON.parse(post)
-                // console.log(JSON.parse(post))
+                const {userImage:{src:image}, description} = JSON.parse(post);
                 return (
                   <li className="posts__post" key={index}>
-                    <Link className="posts__post__link" to={`/p/${index}`}>
+                    <Link className="posts__post__link" to={`/p/${post?.postId}`}>
                       <img className="posts__post__img" src={image} alt={description}/>
                     </Link>
                   </li>
@@ -206,7 +201,6 @@ const Wrapper = styled.div`
       object-fit:cover;
     }
 
-
     .content__header {
       display:flex;
       justify-content:flex-start;
@@ -246,7 +240,6 @@ const Wrapper = styled.div`
       cursor:pointer;
     }
 
-
     .profile__content__info {
       display:flex;
       flex-direction:row;
@@ -264,9 +257,6 @@ const Wrapper = styled.div`
       font-weight:600;
     }
 
-    
-
-
     .profile__posts {
       margin-top:2rem;
       display:flex;
@@ -276,7 +266,6 @@ const Wrapper = styled.div`
       align-items:center;
       padding: 0 4px;
     }
-
 
     .posts__post {
       width:250px;
@@ -291,7 +280,7 @@ const Wrapper = styled.div`
     }
 
     .posts__post__link:hover {
-      filter:grayscale(0.5);
+      filter:saturate(0.8);
     }
 
     .posts__post__img {
@@ -336,7 +325,6 @@ const Wrapper = styled.div`
         margin-bottom:0.1rem;
       }
 
-
       .profile__content__info {
         display:flex;
         flex-direction:column;
@@ -352,8 +340,6 @@ const Wrapper = styled.div`
         justify-content:center;
         align-items:center;
       }
-    }
+    }  
 
-
-  
 `
