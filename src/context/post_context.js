@@ -157,13 +157,13 @@ this person is visiting are the same*/
         //  add the logged in users uid to the current profiles followers array
         const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
         await updateDoc(loggedInRef, {
-          following:[...loggedInProfileFollowing, currentProfileUid]
+          following:deleteDuplicates([...loggedInProfileFollowing, currentProfileUid])
         });
   
         //  add the current profiles uid to the logged in users following array
         const currentProfileRef = doc(db, "users", currentProfileDocumentId);
         await updateDoc(currentProfileRef, {
-          followers:[...currentProfileFollowers, loggedInProfileUid]
+          followers:deleteDuplicates([...currentProfileFollowers, loggedInProfileUid])
         });
   
         dispatch({type:FOLLOW_BUTTON_LOADING_STOP})

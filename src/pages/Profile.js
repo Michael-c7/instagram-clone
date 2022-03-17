@@ -9,30 +9,23 @@ import Loading from '../components/LoadingText';
 const Profile = () => {
   const {
     isCreatePostModalOpen,
-    getCurrentUserData,
-    currentUserData,
     usersData,
     getUsersData,
     toggleNavigationIconHome,
     toggleNavigationIconExplore,
     loggedInUserSameAsCurrentProfile,
     checkCurrentUser,
-    getLoggedInUserData,
-    loggedInUserData,
     loggedInUid,
     checkIfFollowing,
     isFollowing,
     followUser,
     unFollowUser,
     followButtonLoading,
-    currentProfileFollowers,
-    currentProfileFollowing,
   } = usePostContext()
   
   const [currentUser, setCurrentUser] = useState({})
   const [followerCount, setFollowerCount] = useState(null)
   const [followingCount, setFollowingCount] = useState(null)
-
 
   const { id:uidFromUrl } = useParams()
 
@@ -65,59 +58,34 @@ const Profile = () => {
   useEffect(() => {
     // used to check if the logged in user is following the current profile user
     checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
-    // console.log(isFollowing)
 
-  
-
-      setFollowerCount(currentUser?.followers?.length)
-      setFollowingCount(currentUser?.following?.length)
-
-
-      // console.log(
-      //   followerCount,
-      //   followingCount)
+    setFollowerCount(currentUser?.followers?.length)
+    setFollowingCount(currentUser?.following?.length)
   }, [currentUser])
 
 
 
-  // useEffect(() => {
-  //   setCurrentFollowerCount(currentUser?.followers?.length)
-  //   setCurrentFollowingCount(currentUser?.following?.length)
-  // }, [isFollowing])
-
-
-  // useEffect(() => {
-  //   checkIfFollowing(currentUser, getSpecificUser(loggedInUid, usersData))
-  // }, [currentUser, isFollowing, loggedInUserSameAsCurrentProfile])
-
-
-
-  /*
-  fix
-
-  get create-a-post-working
-  - styles for navbar / get current user to navbar so profiles tab can route to correct place
-  - clicking on many search results / search result styles
-  - get followers / following
-  */
-
 
   const followBtnLogic = _ => {
     followUser(currentUser, getSpecificUser(loggedInUid, usersData));
-    if(followerCount <= 0) {
-      setFollowerCount((prevCount) => prevCount = 0)
-    } 
-    
-    setFollowerCount((prevCount) => prevCount + 1)
+    setTimeout(() => {
+      if(followerCount <= 0) {
+        setFollowerCount((prevCount) => prevCount = 0)
+      }
+      setFollowerCount((prevCount) => prevCount + 1)
+    }, 500)
   }
 
   const unFollowBtnLogic = _ => {
     unFollowUser(currentUser, getSpecificUser(loggedInUid, usersData));
-    if(followerCount < 0) {
-      setFollowerCount((prevCount) => prevCount = 0)
-    } 
-    
-    setFollowerCount((prevCount) => prevCount - 1)
+    setTimeout(() => {
+      if(!followButtonLoading) {
+        if(followerCount < 0) {
+          setFollowerCount((prevCount) => prevCount = 0)
+        }
+        setFollowerCount((prevCount) => prevCount - 1)
+      }
+    }, 500)
   }
 
   const followAndUnFollowButton = _ => {
@@ -130,7 +98,6 @@ const Profile = () => {
       }
         return (
           <button className="form-login-btn follow-btn" onClick={followBtnLogic}>Follow</button>
-
         )
   // following / unfollow
     } else if(!loggedInUserSameAsCurrentProfile && isFollowing) {
@@ -142,14 +109,7 @@ const Profile = () => {
         return (
           <button className="form-login-btn follow-btn following" onClick={unFollowBtnLogic}>Following</button>
         )
-      
     }
-
-
-  }
-
-  const unFollowBtn = _ => {
-
   }
 
 
@@ -168,10 +128,6 @@ const Profile = () => {
             <div className="profile__content">
               <header className="content__header">
                 <h2 className="header__username">{currentUser?.username ? currentUser?.username : ""}</h2>
-                {/*Follow button*/}
-                  {/* {!loggedInUserSameAsCurrentProfile && !isFollowing ? <button disabled className="form-login-btn follow-btn" onClick={followBtnLogic}>{followButtonLoading ? <Loading/> : "Follow"}</button> : ""} */}
-                {/*Following button / unfollow button*/}
-                  {/* {!loggedInUserSameAsCurrentProfile && isFollowing ? <button  className="form-login-btn follow-btn following" onClick={unFollowBtnLogic}>{followButtonLoading ? <Loading/> : "Following"}</button> : ""} */}
                 {followAndUnFollowButton()}
               </header>
               <div className="profile__content__info">
@@ -343,5 +299,61 @@ const Wrapper = styled.div`
       height:100%;
       object-fit:cover;
     }
+
+
+
+
+
+
+    @media (max-width: 1800px) {
+      .profile__profile {
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+      }
+
+      .profile__content {
+        margin-left:0rem;
+      } 
+
+      .profile-img-container {
+        width:150px;
+        height:150px;
+        border-radius:100px;
+        margin:1rem 0;
+      }
+
+      .content__header {
+        display:flex;
+        flex-direction:column;
+        justify-content:flex-start;
+        align-items:center;
+        margin:0.75rem;
+      }
+
+      .header__username {
+        margin-bottom:0.1rem;
+      }
+
+
+      .profile__content__info {
+        display:flex;
+        flex-direction:column;
+        justify-content:flex-start;
+        align-items:center;
+      }
+
+      .content__info__item {
+        margin:0.1rem 0;
+      }
+
+      .profile__posts {
+        justify-content:center;
+        align-items:center;
+      }
+    }
+
+
   
 `
