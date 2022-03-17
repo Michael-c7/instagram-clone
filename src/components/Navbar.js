@@ -53,7 +53,6 @@ const Navbar = () => {
               </button>
 
               <ul className={showProfileDropdown ? "dropdown show-dropdown" : "dropdown"}>
-                <li className="triangle"></li>
                 <li className="dropdown__item">
                   <Link to="/testUser">
                     <FaRegUserCircle className="dropdown-icon"/>
@@ -186,18 +185,6 @@ li {
   transition-duration: 0.5s;
 }
 
-.triangle {
-  position:absolute;
-  width: 0; 
-  height: 0; 
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 10px solid #fff;
-  top:-18px;
-  left:77%;
-  transform:translate(-77%);
-}
-
 .dropdown {
 	visibility: hidden;
   display: none;
@@ -212,6 +199,20 @@ li {
   filter:drop-shadow(0px 0px 10px var(--gray-db));
   z-index:-10;
 }
+
+.dropdown:after {
+  position: absolute;
+  left: 75.5%;
+  margin-left: -20px;
+  top: -15px;
+  width: 0;
+  height: 0;
+  content:'';
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 15px solid #fff;
+}
+
 
 .show-dropdown {
   visibility: visible;
