@@ -52,7 +52,7 @@ const deleteDuplicates = (arrayWithDuplicates) => {
 
 
 const getSpecificUser = (userUid, userData) => {
-  let user = userData.filter(user => user.uid === userUid)
+  let user = userData?.filter(user => user?.uid === userUid)
   return user[0]
 }
 

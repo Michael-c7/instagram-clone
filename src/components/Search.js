@@ -3,6 +3,7 @@ import styled from "styled-components"
 import { CgSearch } from "react-icons/cg"
 import { usePostContext } from '../context/post_context';
 import { Link } from "react-router-dom";
+import defaultImage from "../utils/images/default-user.jpg"
 
 const Search = () => {
   const [userInput, setUserInput] = React.useState("")
@@ -36,7 +37,11 @@ const Search = () => {
               let usernameCharMax = 15;
               const {username, uid} = user
               return (
-                <li className="search-user" key={uid}>
+                <li className="search-user" key={uid} onClick={() => window.location.reload(true)}>
+                  <div className="search-user-img-container">
+                    <img className="search-user__img" src={defaultImage} alt={`${username} profile`}/>
+                  </div>
+                  
                   <Link className="search-user__link" to={`/${uid}`}>
                     <h2 className="search-user__name">{username.length < usernameCharMax ? username : `${username.slice(0, usernameCharMax)}...`}</h2>
                   </Link>
@@ -116,28 +121,20 @@ const Wrapper = styled.section`
     border-bottom: 15px solid #fff;
   }
 
-  @media screen and (max-width:1400px) {
-    .search-users-container {  
-      left:37%;
-      transform:translate(-37%);
-    }
+
+  .search-user-img-container {
+    width:25px;
+    height:25px;
+    border-radius:100px:
   }
 
-  @media screen and (max-width:1050px) {
-    .search-users-container {  
-      left:20%;
-      transform:translate(-20%);
-    }
+  .search-user__img {
+    width:100%;
+    height:100%;
+    border-radius:inherit;
+    object-fit:cover;
   }
 
-  @media screen and (max-width:500px) {
-    .search-users-container {  
-      left:50%;
-      transform:translate(-50%);
-      text-align:center;
-    }
-  }
-  
   .show-search-users {
     position:absolute;
     visibility: visible;
@@ -163,6 +160,7 @@ const Wrapper = styled.section`
     border-radius:inherit;
     width:auto;
     color:#777;
+    display:flex;
   }
 
   .search-user:hover {
@@ -187,4 +185,31 @@ const Wrapper = styled.section`
     padding:0.5rem;
     text-align:center;
   }
+
+
+
+
+
+  @media screen and (max-width:1400px) {
+    .search-users-container {  
+      left:37%;
+      transform:translate(-37%);
+    }
+  }
+
+  @media screen and (max-width:1050px) {
+    .search-users-container {  
+      left:20%;
+      transform:translate(-20%);
+    }
+  }
+
+  @media screen and (max-width:500px) {
+    .search-users-container {  
+      left:50%;
+      transform:translate(-50%);
+      text-align:center;
+    }
+  }
+  
 `

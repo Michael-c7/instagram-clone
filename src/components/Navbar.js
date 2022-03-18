@@ -13,8 +13,13 @@ import { usePostContext } from "../context/post_context"
 import { Link } from 'react-router-dom';
 
 
+import { getSpecificUser } from "../utils/helper"
+
+
 const Navbar = () => {
   const { logoutUser } = useAuthContext()
+  const [currentUser, setCurrentUser] = useState({})
+
 
   const {
     openCreatePostModal,
@@ -25,8 +30,29 @@ const Navbar = () => {
     showProfileDropdown,
     toggleNavigationIconHome,
     toggleNavigationIconExplore,
+    getLoggedInUserData,
+    loggedInUid,
+    loggedInUserData,
+    usersData,
+    getUsersData,
    } = usePostContext()
 
+
+   useEffect(() => {
+    getUsersData()
+  }, [])
+
+   useEffect(() => {
+    let data = usersData?.filter((item) => loggedInUid === item?.uid)[0]
+    setCurrentUser(data)
+  }, [usersData])
+
+
+  const test = _ => {
+    console.log("this is a test func")
+    toggleProfileDropdown()
+
+  }
 
   return (
     <Wrapper>
@@ -53,8 +79,8 @@ const Navbar = () => {
               </button>
 
               <ul className={showProfileDropdown ? "dropdown show-dropdown" : "dropdown"}>
-                <li className="dropdown__item">
-                  <Link to="/testUser">
+                <li className="dropdown__item" onClick={toggleProfileDropdown}>
+                  <Link to={`/${currentUser?.uid}`}>
                     <FaRegUserCircle className="dropdown-icon"/>
                     <span>Profile</span>
                   </Link>

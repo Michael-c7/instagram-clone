@@ -71,8 +71,10 @@ const post_reducer = (state, action) => {
 
 
   if(action.type === "GET_LOGGED_IN_USER_DATA") {
-    let data = state.usersData.filter(user => user.uid === state.loggedInUid)[0]
-    return {...state, loggedInUserData:data}
+    // let data = state.usersData.filter(user => user.uid === action.payload)
+    console.log(action.payload)
+    // return {...state, loggedInUserData:data}
+    return {...state,}
   }
 
 

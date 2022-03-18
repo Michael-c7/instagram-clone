@@ -28,7 +28,7 @@ import {
 
 let initialState = {
   isCreatePostModalOpen:false,
-  usersData:[],
+  getLoggedInUserData:[],
   currentUserData:{},
   loggedInUid:"",
   loggedInUserData:{},
@@ -107,8 +107,8 @@ export const PostProvider = ({ children }) => {
   }
 
 
-  const  getLoggedInUserData = _ => {
-    dispatch({type:"GET_LOGGED_IN_USER_DATA"})
+  const  getLoggedInUserData = (loggedInUserUid, userData) => {
+    dispatch({type:"GET_LOGGED_IN_USER_DATA", payload:{loggedInUserUid, userData}})
   }
 
 
@@ -261,7 +261,7 @@ this person is visiting are the same*/
 
   useEffect(() => {
     getUsersData()
-    getLoggedInUserData()
+    // getLoggedInUserData(state.loggedInUid)
   }, [])
 
 
