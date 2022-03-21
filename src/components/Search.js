@@ -12,7 +12,7 @@ const Search = () => {
 
   React.useEffect(() => {
     if(userInput.length >= 1) {
-      let maxAmtOfUsers = 8;
+      let maxAmtOfUsers = 25;
       let filterUsers = usersData.filter((user) => 
         user.username.toLowerCase().indexOf(userInput.toLowerCase()) !== -1);
       
@@ -25,32 +25,35 @@ const Search = () => {
   return (
     <Wrapper>
         <div className="search-container">
-            <CgSearch className="icon"/>
-            <label className="search-label">
-                <input className="search-input"type="text" placeholder="Search" onChange={(e) => setUserInput(e.target.value)}/>
-            </label>
-        </div>
-        <div className={userInput.length >= 1 ? "search-users-container show-search-users" : "search-users-container"}>
-        {userInput.length >= 1 ? (
-          <ul className="search-users">
-            {userDataState?.length >= 1 ? userDataState.map((user) => {
-              let usernameCharMax = 15;
-              const {username, uid} = user
-              return (
-                <li className="search-user" key={uid} onClick={() => window.location.reload(true)}>
-                  <div className="search-user-img-container">
-                    <img className="search-user__img" src={defaultImage} alt={`${username} profile`}/>
-                  </div>
-                  
-                  <Link className="search-user__link" to={`/${uid}`}>
-                    <h2 className="search-user__name">{username.length < usernameCharMax ? username : `${username.slice(0, usernameCharMax)}...`}</h2>
-                  </Link>
-                </li>
-              )
-            }) : <p className="no-result-text">No Results found.</p>}
-          </ul>
+          <CgSearch className="icon"/>
+          <label className="search-label">
+            <input className="search-input"type="text" placeholder="Search" onChange={(e) => setUserInput(e.target.value)}/>
+          </label>
+
+          <div className={userInput.length >= 1 ? "search-dropdown-container search-dropdown-container--show" : "search-dropdown-container"}>
+            {userInput.length >= 1 ? (
+              <ul className="search-dropdown__items">
+                {userDataState?.length >= 1 ? userDataState?.map((user) => {
+                  const {username, uid} = user;
+                  let usernameCharMax = 15;
+                  return (
+                    <li className="search-dropdown__item" key={uid} onClick={() => window.location.reload(true)}>
+                      <Link className="search-dropdown__item__link" to={`/${uid}`}>
+                        <img className="search-dropdown__item__image" src={defaultImage} alt={`${username}s profile`}/>
+                        <h2 className="search-dropdown__item__name">
+                          {username.length < usernameCharMax ? username : `${username.slice(0, usernameCharMax)}...`}
+                        </h2>
+                      </Link>
+                    </li>
+                  )
+                }) : <p className="no-result-text">No Results found.</p>}
+              </ul>
             ) : ""}
+
+          </div>
         </div>
+
+        
     </Wrapper>
   )
 };
@@ -63,15 +66,14 @@ const Wrapper = styled.section`
     background:#EFEFEF;
     border-radius:7px;
     padding:0.4rem;
-
     display:flex;
     align-items:center;
   }
 
   .icon {
-      font-size:1.15rem;
-      margin-right:0.5rem;
-      color:#8E8E8E;
+    font-size:1.15rem;
+    margin-right:0.5rem;
+    color:#8E8E8E;
   }
 
   .search-input {
@@ -81,34 +83,45 @@ const Wrapper = styled.section`
   }
 
   .search-input:placeholder {
-      color:#8E8E8E;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    color:#8E8E8E;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
     font-weight:300;
   }
 
-  .search-users-container {
-    visibility: hidden;
-    display: none;
-    opacity: 0;
-    min-width: 10rem;
-    width:15rem;
-    height:auto;
-    max-height:20rem;
-    position: absolute;
-    transition: all 0.5s ease;
-    margin-top: 1.5rem;
-    left:-100px;
-    background:#fff;
+
+
+
+  
+
+
+
+
+
+  .search-dropdown-container {
+    position:absolute;
+    background:#ffff;
     border-radius:5px;
-    filter:drop-shadow(0px 0px 10px var(--gray-db));
+    filter:drop-shadow(0px 0px 5px rgba(45, 52, 54, 0.25));
+    width:20rem;
+    height:25rem;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    margin-top:3.75rem;
+    visibility: hidden;
+    opacity: 0;
     z-index:-10;
-    left:34%;
-    transform:translate(-34%);
   }
 
-  .search-users-container:after {
+  .search-dropdown-container--show {
+    visibility: visible;
+    opacity: 1;
+    z-index:10;
+  }
+
+  .search-dropdown-container:after {
     position: absolute;
     left: 50%;
     margin-left: -20px;
@@ -121,95 +134,64 @@ const Wrapper = styled.section`
     border-bottom: 15px solid #fff;
   }
 
-
-  .search-user-img-container {
-    width:25px;
-    height:25px;
-    border-radius:100px:
-  }
-
-  .search-user__img {
+  .search-dropdown__items {
     width:100%;
     height:100%;
-    border-radius:inherit;
+    overflow-y:auto;
+    overflow-x:hidden;
+    border-radius:5px;
+  }
+
+  .search-dropdown__item {
+    width:100%;
+  }
+
+  .search-dropdown__item:first-of-type {
+    margin-top:0.85rem;
+  }
+
+  .search-dropdown__item:last-of-type {
+    border-bottom-left-radius:5px;
+    border-bottom-right-radius:5px;
+  }
+
+  .search-dropdown__item:hover {
+    background:#fafafa;
+  }
+
+  .search-dropdown__item__link {
+    display:flex;
+    align-items:center;
+    width:100%;
+    padding:0.5rem 0.75rem;
+  }
+
+  .search-dropdown__item__image {
+    width:35px;
+    height:35px;
     object-fit:cover;
+    border-radius:100%;
   }
 
-  .show-search-users {
-    position:absolute;
-    visibility: visible;
-    opacity: 1;
-    display: block;
-    z-index:10;
-  }
-
-
-  .search-users {
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
-    align-items:flex-start;
-    height:auto;
-    max-height:100%;
-  }
-
-
-  .search-user {
-    margin:0 1rem;
-    font-size:0.85rem;
-    border-radius:inherit;
-    width:auto;
-    color:#777;
-    display:flex;
-  }
-
-  .search-user:hover {
-    color:#000;
-  }
-
-  .search-user:first-of-type {
-    border-radius:5px 5px 0px 0px;
-  }
-
-  .search-user:last-of-type {
-    border-radius:0px 0px 5px 5px;
-  }
-
-  .search-user__name {
+  .search-dropdown__item__name {
+    font-size:1rem;
     font-weight:400;
+    margin-left:0.5rem;
   }
-
 
   .no-result-text {
     width:100%;
     padding:0.5rem;
     text-align:center;
+    margin-top:1rem;
+    font-size:1.15rem;
   }
 
-
-
-
-
-  @media screen and (max-width:1400px) {
-    .search-users-container {  
-      left:37%;
-      transform:translate(-37%);
-    }
-  }
-
-  @media screen and (max-width:1050px) {
-    .search-users-container {  
-      left:20%;
-      transform:translate(-20%);
-    }
-  }
 
   @media screen and (max-width:500px) {
-    .search-users-container {  
-      left:50%;
-      transform:translate(-50%);
-      text-align:center;
+    .search-dropdown-container {
+      margin-top:7rem;
     }
   }
-  
+
 `

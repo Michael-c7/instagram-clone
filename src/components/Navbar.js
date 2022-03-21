@@ -47,13 +47,6 @@ const Navbar = () => {
     setCurrentUser(data)
   }, [usersData])
 
-
-  const test = _ => {
-    console.log("this is a test func")
-    toggleProfileDropdown()
-
-  }
-
   return (
     <Wrapper>
       <nav className="navbar">
