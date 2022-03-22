@@ -72,7 +72,7 @@ const Navbar = () => {
               </button>
 
               <ul className={showProfileDropdown ? "dropdown show-dropdown" : "dropdown"}>
-                <li className="dropdown__item" onClick={toggleProfileDropdown}>
+                <li className="dropdown__item" onClick={() => { toggleProfileDropdown(); window.location.reload(true);}}>
                   <Link to={`/${currentUser?.uid}`}>
                     <FaRegUserCircle className="dropdown-icon"/>
                     <span>Profile</span>
@@ -176,6 +176,8 @@ const Wrapper = styled.section`
   }
 
   .navigation__item .icon {
+    background:none;
+    color:#000;
     cursor:pointer;
   }
 
