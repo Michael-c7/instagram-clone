@@ -95,7 +95,7 @@ export const PostProvider = ({ children }) => {
   }
 
 // used to generate a unique id for the user
-  const generateUniqueId = async _ => uuidv4();
+  const generateUniqueId = _ => uuidv4();
 
 
   const toggleNavigationIconHome = (iconValue) => {

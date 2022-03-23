@@ -137,10 +137,10 @@ const Profile = () => {
           <ul className="profile__posts">
             {currentUser?.posts?.length >= 1 ? (
               currentUser?.posts.map((post, index) => {
-                const {userImage:{src:image}, description} = JSON.parse(post);
+                const {userImage:{src:image}, description, postId} = JSON.parse(post);
                 return (
                   <li className="posts__post" key={index}>
-                    <Link className="posts__post__link" to={`/p/${post?.postId}`}>
+                    <Link className="posts__post__link" to={`/p/${postId}`}>
                       <img className="posts__post__img" src={image} alt={description}/>
                     </Link>
                   </li>

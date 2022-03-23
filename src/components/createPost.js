@@ -6,7 +6,7 @@ import { useAuthContext } from '../Auth/AuthContext';
 import { doc, updateDoc } from "firebase/firestore"; 
 import { db } from "../Auth/firebase"
 import { stringify } from '@firebase/util';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getCurrentDay } from "../utils/helper";
 
 
@@ -25,6 +25,8 @@ const CreatePost = () => {
     currentUserData,
     generateUniqueId,
   } = usePostContext()
+
+  const { id:uidFromUrl } = useParams()
 
 
 // show the chosen image
@@ -60,8 +62,9 @@ const CreatePost = () => {
         description,
         datePosted:datePosted(),
         postedBy:postedBy,
-        postId:postId(),
+        postId:postId,
       }
+
 
   // Add a new document in collection "users"
     const postsDocRef = doc(db, "users", documentId);
@@ -74,10 +77,15 @@ const CreatePost = () => {
     // close the modal
     closeCreatePostModal()
 
-    // redirect to the users profile
-    navigate("/")
+    // want to know the logged in user is on their own profile page
+    if(user.uid === uidFromUrl) {
+      // same
+      window.location.reload(true);
+    } else {
+      // not same
+      navigate(`/${user.uid}`)
     }
-  // dont get the data
+    }
   }
 
 
@@ -91,19 +99,19 @@ const CreatePost = () => {
      <Wrapper>
         <div className="container">
           <button className="close-btn" onClick={closeCreatePostModal}>&times;</button>
-          <form className={`container__inner ${!imgData ? "container__inner--start" : "container__inner--end"}`}>
+          <form className={`container__inner ${!imgData ? "container__inner--start" : "container__inner--end"}`} onSubmit={(e) => {
+            e.preventDefault();
+            share([imgData, picture],
+              descriptionRef.current.value,
+              getCurrentDay,
+              username,
+              generateUniqueId(),
+            )
+          }}>
             <header className="menu__header">
               <button className="back-btn" onClick={closeCreatePostModal}><BsArrowLeft/></button>
               <h2 className="header__heading">Create new post</h2>
-              <button className="share-btn" onClick={
-                () => share(
-                [imgData, picture],
-                descriptionRef.current.value,
-                getCurrentDay,
-                username,
-                generateUniqueId,
-                )}
-              >share</button>
+              <button className="share-btn" type="submit">share</button>
             </header>
             <section className="content">
               <div className="content__upload">
