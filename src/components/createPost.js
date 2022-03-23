@@ -77,7 +77,7 @@ const CreatePost = () => {
     // close the modal
     closeCreatePostModal()
 
-    // want to know the logged in user is on their own profile page
+    // want to know if the logged in user is on their own profile page
     if(user.uid === uidFromUrl) {
       // same
       window.location.reload(true);
