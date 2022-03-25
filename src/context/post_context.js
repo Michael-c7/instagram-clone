@@ -28,6 +28,7 @@ import {
 
 let initialState = {
   isCreatePostModalOpen:false,
+  isAreYouSureModalOpen:false,
   getLoggedInUserData:[],
   currentUserData:{},
   loggedInUid:"",
@@ -240,6 +241,20 @@ this person is visiting are the same*/
   }
 
 
+
+  const openAreYouSureModal = _ => {
+    dispatch({type:"OPEN_ARE_YOU_SURE_MODAL"})
+  }
+
+  const closeAreYouSureModal = _ => {
+      dispatch({type:"CLOSE_ARE_YOU_SURE_MODAL"})
+  }
+
+  const deletePost = () => {
+    console.log("delete post function")
+  }
+
+
   
 
 
@@ -313,6 +328,9 @@ this person is visiting are the same*/
         checkIfFollowing,
         followUser,
         unFollowUser,
+        openAreYouSureModal,
+        closeAreYouSureModal,
+        deletePost,
       }}>
       {children}
     </PostContext.Provider>

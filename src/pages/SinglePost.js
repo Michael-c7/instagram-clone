@@ -4,79 +4,55 @@ import styled from "styled-components"
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai"
 import { FiMessageSquare } from "react-icons/fi"
 import { BiDotsHorizontalRounded } from "react-icons/bi"
+import { AiFillDelete } from "react-icons/ai"
 import { usePostContext } from "../context/post_context"
 import {  useParams } from "react-router-dom";
 import AreYouSureModal  from "./AreYouSureModal"
-import { Link, useNavigate } from "react-router-dom"
-import defaultImage from "../utils/images/default-user.jpg"
+import { Link } from "react-router-dom"
 
-const Post = () => {
+const SinglePost = () => {
   const [likedPost, setLikedPost] = useState(false)
   const [showMore, setShowMore] = useState(true)
-  const [showCommentEl, setShowCommentEl] = useState(true)  
-  
+  const [showDeleteButton, setShowDeleteButton] = useState(true)
   let descriptionText = "Unlike normal “Chirashi,” where the fish is normally sliced up more like sashimi, the fish in Bara Chirashi, however, is diced up into smaller pieces, making each a perfect size to enjoy in one bite. We hope that you’ll enjoy Chef Kawabe’s own upgraded version of this classic dish."
-  
-  
-  let navigate = useNavigate();
-  
+
   const {
     loggedInUid,
     checkCurrentUser,
     openAreYouSureModal,
-    closeAreYouSureModal,
-    deletePost,
-    unFollowUser
   } = usePostContext()
 
-
-  const goToPost = _ => {
-    closeAreYouSureModal()
-    navigate(`/p/go to current post here`)
-  }
+  const { id:postIdFromUrl } = useParams()
 
 
-  // will get post data from the data put in when working on the feed
+  React.useEffect(() => {
+    console.log(postIdFromUrl)
+
+    // console.log(checkCurrentUser(loggedInUid))
+  }, [])
+
 
 /*
 THIS POST IS MEANT TO BE USED IN THE FEED
 */
-  const AreYouSureModalData = {
-    headingMessage:"",
-    bodyMessage:"",
-    buttons:[
-      {
-        text:"Unfollow",
-        function:unFollowUser,
-        /*args for unFollow user are: currentProfileUserData, loggedInUserData */
-        functionArguments:[],
-        giveBoldStyle:true,
-      },
-      {
-        text:"Go to post",
-        function:goToPost,
-        functionArguments:[],
-        giveBoldStyle:false,
-      }
-    ]
-  }
-
   return (
     <Wrapper>
       {/*Are you sure modal goes here*/}
-      {/*modal go to post */}
-      <AreYouSureModal AreYouSureModalData={AreYouSureModalData} />
+      <AreYouSureModal headingMessage="Delete Post?" bodyMessage="Are you sure you want to delete this post?"/>
 
       <section className="post">
         <header className="header">
-          <Link className="header__info" to="/the users profile">
-            <img className="profile-img" src={defaultImage} alt="profile"/>
+          <Link className="header__info" to="/">
+            <img className="profile-img" src="https://images.unsplash.com/photo-1531437888464-205744295d14?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=669&q=80" alt="profile"/>
             <h2 className="username">Username here</h2>
           </Link>
 
-          <button className="delete-post-btn" onClick={() => openAreYouSureModal()}>
-            <BiDotsHorizontalRounded className="delete-post-icon"/>
-          </button>
+          {showDeleteButton ? (
+            <button className="delete-post-btn" onClick={() => openAreYouSureModal()}>
+             <BiDotsHorizontalRounded className="delete-post-icon"/>
+           </button>
+          ) : ""}
+         
         </header>
         <hr className="divider"/>
         <div className="post-content">
@@ -85,11 +61,7 @@ THIS POST IS MEANT TO BE USED IN THE FEED
         <div className="post-details">
           <ul className="post-details__items">
             <li className="post-details__item">
-              <button className="post-btn like-btn">{likedPost ? <AiFillHeart className="like-btn--liked"/> : <AiOutlineHeart/>}</button>
-            </li>
-
-            <li className="post-details__item">
-              <button className="post-btn like-btn" onClick={() => goToPost()}><FiMessageSquare/></button>
+              <button className="post-btn like-btn">{likedPost ? <AiFillHeart/> : <AiOutlineHeart/>}</button>
             </li>
           </ul>
           <div className="post-likes">9,037 likes</div>
@@ -97,10 +69,6 @@ THIS POST IS MEANT TO BE USED IN THE FEED
             {showMore ? descriptionText.slice(0,15).trim() : descriptionText}
             {showMore ? <button className="more-description-btn" onClick={() => setShowMore(false)}>...more</button> : ""}
           </p>
-          {/*if no comments dont show the view-comments-btn */}
-          {showCommentEl ? (
-            <Link className="view-comments-btn" to="/p/link to the post">View all 12345 comments</Link>
-          ) : ""}
           <div className="date-posted">1 HOUR AGO</div>
         </div>
       </section>
@@ -108,7 +76,7 @@ THIS POST IS MEANT TO BE USED IN THE FEED
   )
 };
 
-export default Post;
+export default SinglePost;
 
 
 const Wrapper = styled.div`
@@ -126,6 +94,9 @@ const Wrapper = styled.div`
     display:grid;
     grid-template-rows:auto 1fr auto;
   }
+
+  
+
 
   .header {
     display:flex;
@@ -147,7 +118,6 @@ const Wrapper = styled.div`
     border:none;
     cursor:pointer;
     margin-right:1rem;
-    object-fit:cover;
   }
 
   .username {
@@ -155,6 +125,7 @@ const Wrapper = styled.div`
     font-size:1.15rem;
     color:#000;
   }
+
 
   .delete-post-btn {
     position:relative;
@@ -166,6 +137,10 @@ const Wrapper = styled.div`
     align-items:center;
     top:2px;
     cursor:pointer;
+  }
+
+
+  .post-content {
   }
 
   .post-img {
@@ -211,6 +186,7 @@ const Wrapper = styled.div`
   .like-btn--liked {
     color:#ED4956;
   }
+  
 
   .post-likes {
     margin:0.35rem 0 0.25rem 0;
@@ -233,7 +209,6 @@ const Wrapper = styled.div`
 
   .view-comments-btn  {
     margin:0.25rem 0;
-    font-size:1rem;
   }
 
   .date-posted {
