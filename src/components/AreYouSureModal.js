@@ -2,16 +2,41 @@ import React from 'react'
 import styled from "styled-components"
 import { usePostContext } from "../context/post_context"
 
+
+/*
+What the data that is passed into the
+AreYourSureModal component should look like
+/*
+const AreYouSureModalData = {
+    headingMessage:"",
+    bodyMessage:"",
+    buttons:[
+      {
+        text:"Unfollow",
+        function:unFollowUser,
+        functionArguments:[],
+        giveBoldStyle:true,
+      },
+      {
+        text:"Go to post",
+        function:goToPost,
+        functionArguments:[],
+        giveBoldStyle:false,
+      }
+    ]
+  }
+
+*/
+
+
+
 const AreYouSureModal = ({AreYouSureModalData}) => {
     const {
         openAreYouSureModal,
         closeAreYouSureModal,
         isAreYouSureModalOpen,
-    } = usePostContext()
-
-    
+    } = usePostContext()    
     const {headingMessage, bodyMessage} = AreYouSureModalData;
-    console.log(AreYouSureModalData)
     
   return (
     <Wrapper>
