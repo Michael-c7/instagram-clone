@@ -1,4 +1,4 @@
-import React, { useState, } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from "styled-components"
 
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai"
@@ -8,6 +8,7 @@ import { AiFillDelete } from "react-icons/ai"
 import { usePostContext } from "../context/post_context"
 import {  useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { focusInput } from "../utils/helper"
 
 import Navbar from '../components/Navbar';
 import CreatePost from '../components/createPost';
@@ -20,8 +21,13 @@ const SinglePost = () => {
   const [showMore, setShowMore] = useState(true)
   const [showDeleteButton, setShowDeleteButton] = useState(true)
   const [showCommentEl, setShowCommentEl] = useState(true)
-  let descriptionText = "Unlike normal “Chirashi,” where the fish is normally sliced up more like sashimi, the fish in Bara Chirashi, however, is diced up into smaller pieces, making each a perfect size to enjoy in one bite. We hope that you’ll enjoy Chef Kawabe’s own upgraded version of this classic dish."
+  const [areYouSureModalData, setAreYouSureModalData] = useState({})
+  const [loggedInUserPost, setLoggedInUserPost] = useState(false)
+  const [postACommentInput, setPostACommentInput] = useState("")
+
   let testPostImg = "https://images.unsplash.com/photo-1643304842006-44079673c553?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
+
+  
 
   const {
     loggedInUid,
@@ -39,6 +45,7 @@ const SinglePost = () => {
     // console.log(checkCurrentUser(loggedInUid))
   }, [])
 
+
   const AreYouSureModalData = {
     headingMessage:"Delete Post?",
     bodyMessage:"Are you sure you want to delete the post?",
@@ -52,6 +59,18 @@ const SinglePost = () => {
     ]
   }
 
+  
+  // useEffect(() => {
+  //   var docWidth = document.documentElement.offsetWidth;
+  //   [].forEach.call(
+  //     document.querySelectorAll('*'),
+  //     function(el) {
+  //       if (el.offsetWidth > docWidth) {
+  //         console.log(el);
+  //       }
+  //     }
+  //   );
+  // }, [])
 
 
   return (
@@ -63,6 +82,13 @@ const SinglePost = () => {
       <Navbar/>
 
       <section className="post">
+        <header className="post__header post__header__mobile">
+          <img className="post__header__img" src={defaultImage} alt=""/>
+          <h2 className="post__header__username">username here</h2>
+          <button className="post__header__action-btn">
+              <BiDotsHorizontalRounded className="post__details__icon horizontal-dots-icon"/>
+          </button>
+        </header>
         <div className="post__img-container">
           <img className="post__img" src={testPostImg} alt="post"/>
         </div>
@@ -184,7 +210,7 @@ const SinglePost = () => {
               <button className="post_info__like-btn">
                 <AiOutlineHeart className="post__info__icon post__heart-icon"/>
               </button>
-              <button className="post-info__comment-btn">
+              <button className="post-info__comment-btn" onClick={() => focusInput("post-a-comment__input", "class")}>
                 <FiMessageSquare className="post__info__icon post__msg-icon"/>
               </button>
             </div>
@@ -195,10 +221,10 @@ const SinglePost = () => {
           {/* pos-a-comment */}
           <div className="post__info__post-a-comment">
             <label className="post-a-comment__label">
-              <input className="post-a-comment__input" placeholder="Add a comment..."/>
+              <input className="post-a-comment__input" placeholder="Add a comment..." value={postACommentInput}  onChange={(e) => setPostACommentInput(e.target.value)}/>
             </label>
 
-            <button className="post-a-comment__btn">Post</button>
+            <button className={ postACommentInput.length > 0 ? "post-a-comment__btn post-a-comment__btn--validated" : "post-a-comment__btn"}>Post</button>
           </div>
 
         </div>
@@ -211,20 +237,18 @@ export default SinglePost;
 
 
 const Wrapper = styled.div`
+ --post-height:40rem;
+ --post-comments-height:25rem;
+
   width:100vw;
   position:relative;
-
-
-
-  .img-temp  {
-    width:100px;
-  }
 
   // post 
     .post {
       background:#fff;
       width:60rem;
-      height:40rem;
+      max-width:100%;
+      height:var(--post-height);
       position:relative;
       top:5rem;
       left:50%;
@@ -235,14 +259,14 @@ const Wrapper = styled.div`
     }
 
 
-
+    
 
 
     // post img
       .post__img-container {
         position:relative;
         width:max-content;
-        height:39.9rem;
+        height:calc(var(--post-height) - 0.1rem);
         left:50%;
         transform:translate(-50%);
       }
@@ -260,7 +284,7 @@ const Wrapper = styled.div`
       .post__details {
         border-left:1px solid var(--gray-db);
         display:grid;
-        grid-template-rows:auto 25rem auto auto;
+        grid-template-rows:auto var(--post-comments-height) auto auto;
       }
 
     
@@ -308,7 +332,7 @@ const Wrapper = styled.div`
     .post__comments-outer,
     .post__comments {
       width:auto;
-      height:25rem;
+      height:var(--post-comments-height);
     }
 
     .post__comments-outer {
@@ -424,8 +448,7 @@ const Wrapper = styled.div`
 
 
 
-    .post-a-comment__label{
-      background:red;
+    .post-a-comment__label {
       flex:1;
     }
 
@@ -434,10 +457,6 @@ const Wrapper = styled.div`
       height:100%;
       border:none;
       outline:none;
-    }
-    
-    .post-a-comment__input::placeholder {
-
     }
     
     .post-a-comment__btn {
@@ -450,6 +469,99 @@ const Wrapper = styled.div`
     .post-a-comment__btn--validated {
       color:var(--login-btn-bg-validated);
       cursor:pointer;
+    }
+
+
+
+
+
+    // misc
+    .post__header__mobile {
+      display:none;
+    }
+
+
+
+    // mobile view
+    @media only screen and (max-width: 1000px) {
+      .post {
+        width:95%;
+      }
+    }
+
+    @media only screen and (max-width: 750px) {
+      .post {
+        width:100%;
+        display:grid;
+        grid-template-columns:1fr;
+        grid-template-rows:1fr 0.5fr;
+        top:0rem;
+      }
+      .post__header {
+        display:none;
+      }
+
+      .post__header__mobile {
+        display:flex;
+      }
+
+      .post__details {
+        border-left:1px solid var(--gray-db);
+        display:grid;
+        grid-template-rows:var(--post-comments-height) auto auto;
+      }
+
+      .post__img-container {
+        position:relative;
+        width:max-content;
+        height:calc(var(--post-height) - 0.1rem);
+        left:50%;
+        transform:translate(-50%);
+      }
+
+      .post__img {
+        width:auto;
+        height:90.25%;
+      }
+
+      .post__info__post-a-comment {
+        position:relative;
+        border-top:1px solid var(--gray-divider);
+        // align-items:center;
+        padding:0.5rem;
+  
+        width:100%;
+        display:flex;
+        flex-direction:column;
+      }
+
+      .post-a-comment__btn {
+        border:none;
+        // background:var(--login-btn-bg);
+        background-color:var(--login-btn-bg-validated);
+        color:#fff;
+        margin-left:0.0rem;
+        margin-top:0.5rem;
+        padding:0.5rem;
+        cursor:pointer;
+      }
+    }
+
+
+    @media only screen and (max-width: 375px) {
+      .post__img-container {
+        position:relative;
+        width:100%;
+        height:calc(var(--post-height) - 0.1rem);
+        left:50%;
+        transform:translate(-50%);
+        object-fit:contain;
+      }
+
+      .post__img {
+        width:100%;
+        height:100%;
+      }
     }
 
 `

@@ -60,6 +60,24 @@ const getSpecificUser = (userUid, userData) => {
 
 
 
+/**
+   * 
+   * @param {string} input - the class or id element name that you want to focus
+   * @param {string} inputType - either a class or an id
+   * @returns - an error if you dont provide a valid input type(A valid input type would be "class" or "id", anything else will throw an error)
+   */
+ const focusInput = (input, inputType = "class") => {
+  if(inputType === "class") {
+    document.querySelector(`.${input}`).focus();
+  } else if(inputType === "id") {
+    document.querySelector(`#${input}`).focus();
+  } else {
+    return new Error(`${inputType} is not a valid input type choose "class" to get a class or "id" to get an id`);
+  }
+}
+
+
+
 
 
 export {
@@ -68,4 +86,5 @@ export {
   UUIDGeneratorBrowser,
   deleteDuplicates,
   getSpecificUser,
+  focusInput,
 }
