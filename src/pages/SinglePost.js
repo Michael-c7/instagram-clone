@@ -240,8 +240,10 @@ const Wrapper = styled.div`
  --post-height:40rem;
  --post-comments-height:25rem;
 
-  width:100vw;
   position:relative;
+  width: 100%;
+  max-width: inherit;
+
 
   // post 
     .post {
