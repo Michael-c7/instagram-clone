@@ -62,29 +62,29 @@ const CreatePost = () => {
         description,
         datePosted:datePosted(),
         postedBy:postedBy,
-        postId:postId,
+        postId:`${user.uid}+${postId}`,
       }
 
 
-  // Add a new document in collection "users"
-    const postsDocRef = doc(db, "users", documentId);
+    // Add a new document in collection "users"
+      const postsDocRef = doc(db, "users", documentId);
 
-    await updateDoc(postsDocRef, {
-      posts:[...currentUserPosts, stringify(post)]
-    });
+      await updateDoc(postsDocRef, {
+        posts:[...currentUserPosts, stringify(post)]
+      });
 
-  // After the data is submitted
-    // close the modal
-    closeCreatePostModal()
+    // After the data is submitted
+      // close the modal
+      closeCreatePostModal()
 
     // want to know if the logged in user is on their own profile page
-    if(user.uid === uidFromUrl) {
-      // same
-      window.location.reload(true);
-    } else {
-      // not same
-      navigate(`/${user.uid}`)
-    }
+      if(user.uid === uidFromUrl) {
+        // same
+        window.location.reload(true);
+      } else {
+        // not same
+        navigate(`/${user.uid}`)
+      }
     }
   }
 

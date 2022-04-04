@@ -241,8 +241,8 @@ const Wrapper = styled.div`
  --post-comments-height:25rem;
 
   position:relative;
-  width: 100%;
-  max-width: inherit;
+  width:100%;
+  max-width:inherit;
 
 
   // post 
