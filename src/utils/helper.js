@@ -50,7 +50,12 @@ const deleteDuplicates = (arrayWithDuplicates) => {
   return arrayWithUniqueItems;
 }
 
-
+/**
+ * uses the userUid to find the user object your looking for
+ * @param {string} userUid - the users uid might look like eg: 4hRtLMpVz5MFnHkxkI4YCEYbUta2
+ * @param {array} userData - an array of users(which are objects)
+ * @returns - an object of the user data
+ */
 const getSpecificUser = (userUid, userData) => {
   let user = userData?.filter(user => user?.uid === userUid)
   if(user) {
@@ -80,6 +85,19 @@ const getSpecificUser = (userUid, userData) => {
 
 
 
+const validateEmail = (email) => {
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
+
+
+
+
+
+
 export {
   getCurrentDay,
   formatBytes,
@@ -87,4 +105,5 @@ export {
   deleteDuplicates,
   getSpecificUser,
   focusInput,
+  validateEmail,
 }

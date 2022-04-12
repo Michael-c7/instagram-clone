@@ -40,9 +40,10 @@ let initialState = {
   isFollowing:false,
   currentProfileFollowers:0,
   currentProfileFollowing:0,
-  
   followButtonLoading:false,
-  
+
+  isErrorModalOpen:false,
+  errorModalMessage:"",
 }
 
 const PostContext = React.createContext()
@@ -71,7 +72,8 @@ export const PostProvider = ({ children }) => {
       });
       dispatch({ type: GET_USERS_DATA,payload:arr})
     } catch (error) {
-      console.log(error)
+      console.log(error.message)
+      openErrorModal(error.message)
     }
   }
 
@@ -86,7 +88,8 @@ export const PostProvider = ({ children }) => {
       })
       dispatch({ type: GET_CURRENT_USER_DATA, payload:userObj})
     } catch (error) {
-      console.log(error)
+      console.log(error.message)
+      openErrorModal(error.message)
     }
   }
 
@@ -170,6 +173,7 @@ this person is visiting are the same*/
         dispatch({type:FOLLOW_BUTTON_LOADING_STOP})
       } catch(error) {
         console.log(error.message)
+        openErrorModal(error.message)
       }
       dispatch({type:FOLLOW_USER})
 
@@ -223,6 +227,7 @@ this person is visiting are the same*/
         });
       } catch(error) {
         console.log(error.message)
+        openErrorModal(error.message)
       }
   
       dispatch({type:UNFOLLOW_USER})
@@ -255,7 +260,126 @@ this person is visiting are the same*/
   }
 
 
+  /**
+   * 
+   * @param {object} currentPostData 
+   * @param {string} loggedInUserUid
+   * @returns {boolean} - if the post has been liked by the logged in user or not
+   */
+  const checkIfPostLiked = (currentPostData, loggedInUserUid) => {
+    let currentPostDataIsObject = typeof currentPostData === "object" && currentPostData !== null
+    let loggedInUserUidIsString = typeof loggedInUserUid === "string"
+    /*
+    if the the current logged in user uid is in the current post data liked array 
+    then that means the current post has been liked by the current profile
+    */
+    if(currentPostDataIsObject && loggedInUserUidIsString) {
+      const { likes } = currentPostData
+      if(likes?.includes(loggedInUserUid)) {
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+
+  const likePost = async (currentProfileUserData, loggedInUserData, postId) => {
+    const {
+      documentId:currentProfileDocumentId,
+      uid:currentProfileUid,
+      likes:currentProfileLikes,
+    } = currentProfileUserData;
+    const {
+      documentId:loggedInProfileDocumentId,
+      uid:loggedInProfileUid,
+    } = loggedInUserData;  
+
+    try {
+      /*add the logged in users uid to the likes array of the current post */
+
+      /*
+      1. add uid from logged in user to the likes array of this post
+      */
+      const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+      // should be the current profile --> the current post
+      await updateDoc(currentProfileRef, {
+        likes:deleteDuplicates([...currentProfileLikes, loggedInProfileUid])
+      });
+
+    } catch(error) {
+      console.log(error.message)
+      openErrorModal(error.message)
+    }
+  }
+
+
+  /*
+  const {
+      documentId:currentProfileDocumentId,
+      uid:currentProfileUid,
+      followers:currentProfileFollowers,
+    } = currentProfileUserData;
+    const {
+      documentId:loggedInProfileDocumentId,
+      uid:loggedInProfileUid,
+      following:loggedInProfileFollowing,
+    } = loggedInUserData;    
+    
+    dispatch({type:FOLLOW_BUTTON_LOADING_START})
+
+    if(!checkIfFollowing(currentProfileUserData, loggedInUserData)) {
+
+      try {
+        //  add the logged in users uid to the current profiles followers array
+        const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
+        await updateDoc(loggedInRef, {
+          following:deleteDuplicates([...loggedInProfileFollowing, currentProfileUid])
+        });
   
+        //  add the current profiles uid to the logged in users following array
+        const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+        await updateDoc(currentProfileRef, {
+          followers:deleteDuplicates([...currentProfileFollowers, loggedInProfileUid])
+        });
+  
+        dispatch({type:FOLLOW_BUTTON_LOADING_STOP})
+      } catch(error) {
+        console.log(error.message)
+      }
+      dispatch({type:FOLLOW_USER})
+
+    } else {
+      // do nothing
+      console.log(`
+        The logged in user ${loggedInProfileUid} UID
+        tried to follow user the current profile user ${currentProfileUid} UID,
+        but something went wrong.
+        This message gets triggered when the 
+        checkIfFollowing function  in the followUser function
+        evaluates to false`
+      )
+    }
+  */
+
+  const unLikePost = async (currentProfileUserData, loggedInUserData) => {
+    console.log("unlike the post")
+  }
+
+
+  /**
+   * 
+   * @param {string} errorMessage
+   */
+  const openErrorModal = errorMessage => {
+    if(typeof errorMessage === "string") {
+      dispatch({type:"OPEN_ERROR_MODAL", payload:errorMessage})
+    }
+    console.log(new Error(`the argument for the openErrorModal function was ${errorMessage} instead of this you should supply a string`))
+  }
+
+  const closeErrorModal = _ => {
+    dispatch({type:"CLOSE_ERROR_MODAL"})
+  }
 
 
 
@@ -331,6 +455,9 @@ this person is visiting are the same*/
         openAreYouSureModal,
         closeAreYouSureModal,
         deletePost,
+        checkIfPostLiked,
+        openErrorModal,
+        closeErrorModal,
       }}>
       {children}
     </PostContext.Provider>

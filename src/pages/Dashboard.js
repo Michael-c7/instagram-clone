@@ -1,14 +1,28 @@
 import React, { useState } from 'react';
+
+// components
 import Navbar from '../components/Navbar';
 import Feed from '../components/Feed';
 import styled from "styled-components"
 import CreatePost from '../components/createPost';
 import { usePostContext } from "../context/post_context"
+import ErrorModal from "../components/modals/ErrorModal"
 
 const Dashboard = () => {
-  const {  isCreatePostModalOpen } = usePostContext()
+  const { 
+    isCreatePostModalOpen,
+    isErrorModalOpen,
+    openErrorModal,
+   } = usePostContext()
+
+
+  //  React.useEffect(() => {
+  //   openErrorModal()
+  // },[])
+   
   return (
     <Wrapper>
+      { isErrorModalOpen ? <ErrorModal/> : ""}
       {isCreatePostModalOpen ? <CreatePost/> : ""}
       <Navbar/>
       <section className="main-feed">

@@ -1,29 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import styled from "styled-components"
 
+// icons
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai"
 import { FiMessageSquare } from "react-icons/fi"
 import { BiDotsHorizontalRounded } from "react-icons/bi"
-import { AiFillDelete } from "react-icons/ai"
+
+// misc
 import { usePostContext } from "../context/post_context"
 import {  useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { focusInput } from "../utils/helper"
+import { focusInput, getSpecificUser } from "../utils/helper"
+import defaultImage from "../utils/images/default-user.jpg"
 
+// components
 import Navbar from '../components/Navbar';
 import CreatePost from '../components/createPost';
-import AreYouSureModal from '../components/AreYouSureModal';
-import defaultImage from "../utils/images/default-user.jpg"
+import AreYouSureModal from '../components/modals/AreYouSureModal';
+import ErrorModal from "../components/modals/ErrorModal"
+
+// loader components
+import MyLoader from "../components/loaders/skeleton/Loader"
+import MyLoader2 from "../components/loaders/skeleton/Loader2"
+
 
 
 const SinglePost = () => {
-  const [likedPost, setLikedPost] = useState(false)
-  const [showMore, setShowMore] = useState(true)
-  const [showDeleteButton, setShowDeleteButton] = useState(true)
-  const [showCommentEl, setShowCommentEl] = useState(true)
   const [areYouSureModalData, setAreYouSureModalData] = useState({})
-  const [loggedInUserPost, setLoggedInUserPost] = useState(false)
+  const [isUserLoggedInUser, setIsUserLoggedInUser] = useState(false)
   const [postACommentInput, setPostACommentInput] = useState("")
+
+  const [postId, setPostId] = useState("")
+  const [userUid, setUserUid] = useState("")
+
+  const [currentUserData, setCurrentUserData] = useState({})
+  const [currentPostData, setCurrentPostData] = useState({})
+  const [currentPostLikes, setCurrentPostLikes] = useState(0)
+  const [currentPostLiked, setCurrentPostLiked] = useState(false)
 
   let testPostImg = "https://images.unsplash.com/photo-1643304842006-44079673c553?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
 
@@ -34,201 +47,301 @@ const SinglePost = () => {
     checkCurrentUser,
     openAreYouSureModal,
     isCreatePostModalOpen,
+    getUsersData,
+    usersData,
+    unFollowUser,
+    goToPost,
+    getCurrentLikesOfPost,
+    checkIfPostLiked,
+    isErrorModalOpen,
   } = usePostContext()
 
   const { id:postIdFromUrl } = useParams()
 
 
-  React.useEffect(() => {
-    console.log(postIdFromUrl)
+  useEffect(() => {
+    setUserUid(postIdFromUrl.split("+")[0])
+    setPostId(postIdFromUrl.split("+")[1])
 
-    // console.log(checkCurrentUser(loggedInUid))
+    getUsersData()
+  }, [])
+
+  useEffect(() => {
+    setCurrentUserData(getSpecificUser(userUid, usersData))
+  }, [usersData])
+
+
+  useEffect(() => {
+    setCurrentPostData(getPost(postId, currentUserData?.posts))
+  }, [currentUserData])
+
+  useEffect(() => {
+    // if current post already liked
+    if(currentUserData) {
+      if(checkIfPostLiked(currentPostData, loggedInUid)) {
+        setCurrentPostLiked(true)
+      } else {
+        // if current post already not liked
+        setCurrentPostLiked(false)
+      }
+    }
+  }, [currentPostLikes, currentPostLiked])
+
+
+
+
+  useEffect(() => {
+    /*
+    {
+            headingMessage:"Delete Post?",
+            bodyMessage:"Are you sure you want to delete the post?",
+            buttons:[
+              {
+                text:"Delete",
+                function:"",
+                functionArguments:[],
+                giveBoldStyle:true,
+              },
+            ]
+          }
+    */
+
+      if(isUserLoggedInUser) {
+        setAreYouSureModalData(
+          {
+            headingMessage:"",
+            bodyMessage:"",
+            buttons:[
+              {
+                text:"Delete Post",
+                function:"",
+                functionArguments:[],
+                giveBoldStyle:true,
+              },
+            ]
+          }
+        )
+    } else {
+      setAreYouSureModalData(
+        {
+          headingMessage:"",
+          bodyMessage:"",
+          buttons:[
+
+            {
+              text:"Go to Profile",
+              function:"",
+              functionArguments:[],
+              giveBoldStyle:true,
+            }
+          ]
+        }
+      )
+    }
   }, [])
 
 
-  const AreYouSureModalData = {
-    headingMessage:"Delete Post?",
-    bodyMessage:"Are you sure you want to delete the post?",
-    buttons:[
-      {
-        text:"Delete",
-        function:"",
-        functionArguments:[],
-        giveBoldStyle:true,
-      },
-    ]
+
+
+  
+  const getPost = (postId, posts) => {
+    if(posts) {
+      let post = posts?.filter((item) => JSON?.parse(item)?.postId.split("+")[1] === postId)
+      return JSON?.parse(post[0])
+    }
   }
 
   
-  // useEffect(() => {
-  //   var docWidth = document.documentElement.offsetWidth;
-  //   [].forEach.call(
-  //     document.querySelectorAll('*'),
-  //     function(el) {
-  //       if (el.offsetWidth > docWidth) {
-  //         console.log(el);
-  //       }
-  //     }
-  //   );
-  // }, [])
 
+
+  // const likePost = () => {
+  //   if(currentPostLiked) {
+  //     // add one like to the database
+  //     setCurrentPostLiked(false)
+  //     setCurrentPostLikes((prevCount) => prevCount - 1)
+  //   } else {
+  //     // remove like to the database
+  //     setCurrentPostLiked(true)
+  //     setCurrentPostLikes((prevCount) => prevCount + 1)
+  //   }
+  // }
 
   return (
     <Wrapper>
-      <AreYouSureModal AreYouSureModalData={AreYouSureModalData} />
+      { isErrorModalOpen ? <ErrorModal/> : ""}
+      <AreYouSureModal AreYouSureModalData={areYouSureModalData} />
       
       {isCreatePostModalOpen ? <CreatePost/> : ""}
 
       <Navbar/>
 
-      <section className="post">
-        <header className="post__header post__header__mobile">
-          <img className="post__header__img" src={defaultImage} alt=""/>
-          <h2 className="post__header__username">username here</h2>
-          <button className="post__header__action-btn">
-              <BiDotsHorizontalRounded className="post__details__icon horizontal-dots-icon"/>
-          </button>
-        </header>
-        <div className="post__img-container">
-          <img className="post__img" src={testPostImg} alt="post"/>
-        </div>
+          <section className="post">
+            {/* this header is only for the mobile view */}
+            <header className="post__header post__header__mobile">
+              <Link to={`/${userUid}`}>
+                <img className="post__header__img" src={defaultImage} alt="user profile"/>
+              </Link>
+              <Link to={`/${userUid}`}>
+                <h2 className="post__header__username">{currentUserData?.username ? currentUserData?.username : "loading..."}</h2>
+              </Link>
+              <button className="post__header__action-btn" onClick={() => openAreYouSureModal()}>
+                  <BiDotsHorizontalRounded className="post__details__icon horizontal-dots-icon"/>
+              </button>
+            </header>
+            {/* -------------------------------------- */}
+            {!currentUserData ? <MyLoader className="post-loader-styles"/> : (
+              <div className="post__img-container">
+                <img className="post__img" src={currentPostData?.userImage?.src} alt={currentPostData?.description}/>
+              </div>
+              )}
+            
+            {!currentUserData ? <MyLoader2 className="post-loader-styles"/> : (
+              <div className="post__details">
+              {/* header */}
+              <header className="post__header">
+                <Link to={`/${userUid}`}>
+                  <img className="post__header__img" src={defaultImage} alt="user profile"/>
+                </Link>
+                <Link to={`/${userUid}`}>
+                  <h2 className="post__header__username">{currentUserData?.username ? currentUserData?.username : "loading..."}</h2>
+                </Link>
+                <button className="post__header__action-btn" onClick={() => openAreYouSureModal()}>
+                  <BiDotsHorizontalRounded className="post__details__icon horizontal-dots-icon"/>
+                </button>
+              </header>
+              {/* comments */}
+              <div className="post__comments-outer">
+                <div className="post__comments-inner">
+                  <div className="post__comments">
+                    <ul className="post__comments__list">
+                      {/*first item in this list is the description of the post*/}
+                      <li className="comments__list__comment">
+                        <Link className="comment__profile-img-container" to={`/${userUid}`}>
+                          <img className="comment__profile-img" src={defaultImage} alt="profile"/>
+                        </Link>
 
-        <div className="post__details">
-          {/* header */}
-          <header className="post__header">
-            <img className="post__header__img" src={defaultImage} alt=""/>
-            <h2 className="post__header__username">username here</h2>
-            <button className="post__header__action-btn">
-              <BiDotsHorizontalRounded className="post__details__icon horizontal-dots-icon"/>
-            </button>
-          </header>
-          {/* comments */}
-          <div className="post__comments-outer">
-            <div className="post__comments-inner">
-              <div className="post__comments">
-                <ul className="post__comments__list">
-                  {/*first item is the description of the post*/}
-                  <li className="comments__list__comment">
-                    <Link className="comment__profile-img-container" to="/the users profile">
-                      <img className="comment__profile-img" src={defaultImage} alt="profile"/>
-                    </Link>
+                        <div className="comment__info">
+                          <Link className="comment__info__link" to={`/${userUid}`}>
+                            <h2 className="comment__info__username">{currentUserData?.username ? currentUserData?.username : "loading..."}</h2>
+                          </Link>
 
-                    <div className="comment__info">
-                      <Link className="comment__info__link" to="/the users profile">
-                        <h2 className="comment__info__username">Username here</h2>
-                      </Link>
+                          <p className="comment__info__text">{currentPostData?.description}</p>
+                        </div>
+                      </li>
+                      {/*every other item is a comment*/}
+                      <li className="comments__list__comment">
+                        <Link className="comment__profile-img-container" to="/the users profile">
+                          <img className="comment__profile-img" src={defaultImage} alt="profile"/>
+                        </Link>
 
-                      <p className="comment__info__text">this is the description</p>
-                    </div>
-                  </li>
-                  {/*every other item is a comment*/}
-                  <li className="comments__list__comment">
-                    <Link className="comment__profile-img-container" to="/the users profile">
-                      <img className="comment__profile-img" src={defaultImage} alt="profile"/>
-                    </Link>
+                        <div className="comment__info">
+                          <Link className="comment__info__link" to="/the users profile">
+                            <h2 className="comment__info__username">Username here</h2>
+                          </Link>
 
-                    <div className="comment__info">
-                      <Link className="comment__info__link" to="/the users profile">
-                        <h2 className="comment__info__username">Username here</h2>
-                      </Link>
+                          <p className="comment__info__text">this is a comment.this is a comment.this is a comment.this is a comment.this is a comment.</p>
+                        </div>
+                      </li>
+                      <li className="comments__list__comment">
+                        <Link className="comment__profile-img-container" to="/the users profile">
+                          <img className="comment__profile-img" src={defaultImage} alt="profile"/>
+                        </Link>
 
-                      <p className="comment__info__text">this is a comment.this is a comment.this is a comment.this is a comment.this is a comment.</p>
-                    </div>
-                  </li>
-                  <li className="comments__list__comment">
-                    <Link className="comment__profile-img-container" to="/the users profile">
-                      <img className="comment__profile-img" src={defaultImage} alt="profile"/>
-                    </Link>
+                        <div className="comment__info">
+                          <Link className="comment__info__link" to="/the users profile">
+                            <h2 className="comment__info__username">Username here</h2>
+                          </Link>
 
-                    <div className="comment__info">
-                      <Link className="comment__info__link" to="/the users profile">
-                        <h2 className="comment__info__username">Username here</h2>
-                      </Link>
+                          <p className="comment__info__text">this is a comment.this is a comment.this is a comment.this is a comment.this is a comment.</p>
+                        </div>
+                      </li>
+                      <li className="comments__list__comment">
+                        <Link className="comment__profile-img-container" to="/the users profile">
+                          <img className="comment__profile-img" src={defaultImage} alt="profile"/>
+                        </Link>
 
-                      <p className="comment__info__text">this is a comment.this is a comment.this is a comment.this is a comment.this is a comment.</p>
-                    </div>
-                  </li>
-                  <li className="comments__list__comment">
-                    <Link className="comment__profile-img-container" to="/the users profile">
-                      <img className="comment__profile-img" src={defaultImage} alt="profile"/>
-                    </Link>
+                        <div className="comment__info">
+                          <Link className="comment__info__link" to="/the users profile">
+                            <h2 className="comment__info__username">Username here</h2>
+                          </Link>
 
-                    <div className="comment__info">
-                      <Link className="comment__info__link" to="/the users profile">
-                        <h2 className="comment__info__username">Username here</h2>
-                      </Link>
+                          <p className="comment__info__text">this is a comment.this is a comment.this is a comment.this is a comment.</p>
+                        </div>
+                      </li>
+                      <li className="comments__list__comment">
+                        <Link className="comment__profile-img-container" to="/the users profile">
+                          <img className="comment__profile-img" src={defaultImage} alt="profile"/>
+                        </Link>
 
-                      <p className="comment__info__text">this is a comment.this is a comment.this is a comment.this is a comment.</p>
-                    </div>
-                  </li>
-                  <li className="comments__list__comment">
-                    <Link className="comment__profile-img-container" to="/the users profile">
-                      <img className="comment__profile-img" src={defaultImage} alt="profile"/>
-                    </Link>
+                        <div className="comment__info">
+                          <Link className="comment__info__link" to="/the users profile">
+                            <h2 className="comment__info__username">Username here</h2>
+                          </Link>
 
-                    <div className="comment__info">
-                      <Link className="comment__info__link" to="/the users profile">
-                        <h2 className="comment__info__username">Username here</h2>
-                      </Link>
+                          <p className="comment__info__text">this is a comment.this is a comment.this is a comment.this is a comment.this is a comment.</p>
+                        </div>
+                      </li>
+                      <li className="comments__list__comment">
+                        <Link className="comment__profile-img-container" to="/the users profile">
+                          <img className="comment__profile-img" src={defaultImage} alt="profile"/>
+                        </Link>
 
-                      <p className="comment__info__text">this is a comment.this is a comment.this is a comment.this is a comment.this is a comment.</p>
-                    </div>
-                  </li>
-                  <li className="comments__list__comment">
-                    <Link className="comment__profile-img-container" to="/the users profile">
-                      <img className="comment__profile-img" src={defaultImage} alt="profile"/>
-                    </Link>
+                        <div className="comment__info">
+                          <Link className="comment__info__link" to="/the users profile">
+                            <h2 className="comment__info__username">Username here</h2>
+                          </Link>
 
-                    <div className="comment__info">
-                      <Link className="comment__info__link" to="/the users profile">
-                        <h2 className="comment__info__username">Username here</h2>
-                      </Link>
+                          <p className="comment__info__text">this is a comment.this is a comment.this is a comment.this is a comment.this is a comment.</p>
+                        </div>
+                      </li>
+                      <li className="comments__list__comment">
+                        <Link className="comment__profile-img-container" to="/the users profile">
+                          <img className="comment__profile-img" src={defaultImage} alt="profile"/>
+                        </Link>
 
-                      <p className="comment__info__text">this is a comment.this is a comment.this is a comment.this is a comment.this is a comment.</p>
-                    </div>
-                  </li>
-                  <li className="comments__list__comment">
-                    <Link className="comment__profile-img-container" to="/the users profile">
-                      <img className="comment__profile-img" src={defaultImage} alt="profile"/>
-                    </Link>
+                        <div className="comment__info">
+                          <Link className="comment__info__link" to="/the users profile">
+                            <h2 className="comment__info__username">Username here</h2>
+                          </Link>
 
-                    <div className="comment__info">
-                      <Link className="comment__info__link" to="/the users profile">
-                        <h2 className="comment__info__username">Username here</h2>
-                      </Link>
+                          <p className="comment__info__text">this is a comment.</p>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              {/* details */}
+              <div className="post__info__details">
+                <div className="post__info__details__icons">
+                  <button className="post_info__like-btn">
+                    {currentPostLiked ? (
+                      <AiFillHeart className="post_info__like-btn--liked"/>
+                    ) : (
+                      <AiOutlineHeart className="post__heart-icon"/>
+                    )}
+                    
+                  </button>
+                  <button className="post-info__comment-btn" onClick={() => focusInput("post-a-comment__input", "class")}>
+                    <FiMessageSquare className="post__info__icon post__msg-icon"/>
+                  </button>
+                </div>
+                <div className="post__info__likes">{currentPostData ? `${currentPostLikes} likes` : "loading..."} </div>
+                <div className="post__info__date">{currentPostData ? `${currentPostData?.datePosted?.curMonth} ${currentPostData?.datePosted?.dayOfMonth} ${currentPostData?.datePosted?.curYear}` : "loading..."}</div>
+              </div>
 
-                      <p className="comment__info__text">this is a comment.</p>
-                    </div>
-                  </li>
-                </ul>
+              {/* pos-a-comment */}
+              <div className="post__info__post-a-comment">
+                <label className="post-a-comment__label">
+                  <input className="post-a-comment__input" placeholder="Add a comment..." value={postACommentInput}  onChange={(e) => setPostACommentInput(e.target.value)}/>
+                </label>
+                <button className={ postACommentInput.length > 0 ? "post-a-comment__btn post-a-comment__btn--validated" : "post-a-comment__btn"}>Post</button>
               </div>
             </div>
-          </div>
-          {/* details */}
-          <div className="post__info__details">
-            <div className="post__info__details__icons">
-              <button className="post_info__like-btn">
-                <AiOutlineHeart className="post__info__icon post__heart-icon"/>
-              </button>
-              <button className="post-info__comment-btn" onClick={() => focusInput("post-a-comment__input", "class")}>
-                <FiMessageSquare className="post__info__icon post__msg-icon"/>
-              </button>
-            </div>
-            <div className="post__info__likes">19,286 likes</div>
-            <div className="post__info__date">1 DAY</div>
-          </div>
+            )}
 
-          {/* pos-a-comment */}
-          <div className="post__info__post-a-comment">
-            <label className="post-a-comment__label">
-              <input className="post-a-comment__input" placeholder="Add a comment..." value={postACommentInput}  onChange={(e) => setPostACommentInput(e.target.value)}/>
-            </label>
-
-            <button className={ postACommentInput.length > 0 ? "post-a-comment__btn post-a-comment__btn--validated" : "post-a-comment__btn"}>Post</button>
-          </div>
-
-        </div>
-      </section>
+          </section>
+        
     </Wrapper>
   )
 };
@@ -244,6 +357,14 @@ const Wrapper = styled.div`
   width:100%;
   max-width:inherit;
 
+  width:100vw;
+
+
+  .post-loader-styles {
+    // position:relative;
+    max-width:100%;
+    max-height:100%;
+  }
 
   // post 
     .post {
@@ -257,7 +378,8 @@ const Wrapper = styled.div`
       transform:translateX(-50%);
       border:1px solid var(--gray-db);
       display:grid;
-      grid-template-columns:1fr 0.5fr;
+      // grid-template-columns:1fr 0.5fr;
+      grid-template-columns:minmax(45rem, 1fr) minmax(15rem, 0.5fr);
     }
 
 
@@ -406,17 +528,47 @@ const Wrapper = styled.div`
     .post-info__comment-btn {
       border:none;
       background:none;
-      font-size:2rem;
+      font-size:1.75rem;
       cursor:pointer;
     }
 
-    .post_info__like-btn {
+    .post-info__comment-btn  {
+      position:relative;
+      font-size:1.65rem;
+      top:-1px;
+    }
 
+
+
+    .post__heart-icon:hover,
+    .post-info__comment-btn:hover {
+      opacity:0.6;
     }
 
     .post_info__like-btn--liked {
+      border:none;
+      background:none;
+      font-size:1.75rem;
+      cursor:pointer;
       color:#ED4956;
+      opacity:1;
+      animation:like-heart-animation 1000ms ease-in-out;
     }
+
+    @keyframes like-heart-animation {
+      15% {
+          opacity: 0.9;
+          transform: scale(1.2);
+      }
+      30% {
+          transform: scale(0.95);
+      }
+      45%,
+      80% {
+          opacity: 0.9;
+          transform: scale(1);
+      }
+  }
 
 
     .post-info__comment-btn {
@@ -485,13 +637,29 @@ const Wrapper = styled.div`
 
 
     // mobile view
+
     @media only screen and (max-width: 1000px) {
       .post {
-        width:95%;
+        width:50rem;
+        grid-template-columns:35rem 15rem;
+      }
+
+      .post__img-container {
+        position:relative;
+        width:100%;
+        height:calc(var(--post-height) - 0.1rem);
+        left:50%;
+        transform:translate(-50%);
+      }
+
+      .post__img {
+        width:inherit;
+        height:100%;
+        object-fit:cover;
       }
     }
 
-    @media only screen and (max-width: 750px) {
+    @media only screen and (max-width: 850px) {
       .post {
         width:100%;
         display:grid;
@@ -515,14 +683,14 @@ const Wrapper = styled.div`
 
       .post__img-container {
         position:relative;
-        width:max-content;
+        width:100%;
         height:calc(var(--post-height) - 0.1rem);
         left:50%;
         transform:translate(-50%);
       }
 
       .post__img {
-        width:auto;
+        width:inherit;
         height:90.25%;
       }
 

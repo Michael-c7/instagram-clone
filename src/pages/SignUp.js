@@ -5,7 +5,7 @@ import { useAuthContext } from "../Auth/AuthContext"
 
 
 const SignUp = () => {
-    const {testFunc, registerUser} = useAuthContext()
+    const { registerUser } = useAuthContext()
 
     const userNameRef = useRef() 
     const emailRef = useRef()

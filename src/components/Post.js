@@ -6,7 +6,7 @@ import { FiMessageSquare } from "react-icons/fi"
 import { BiDotsHorizontalRounded } from "react-icons/bi"
 import { usePostContext } from "../context/post_context"
 import {  useParams } from "react-router-dom";
-import AreYouSureModal  from "./AreYouSureModal"
+import AreYouSureModal  from "./modals/AreYouSureModal"
 import { Link, useNavigate } from "react-router-dom"
 import defaultImage from "../utils/images/default-user.jpg"
 

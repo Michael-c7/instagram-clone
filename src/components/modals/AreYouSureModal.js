@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from "styled-components"
-import { usePostContext } from "../context/post_context"
+import { usePostContext } from "../../context/post_context"
 
 
 /*
@@ -37,7 +37,7 @@ const AreYouSureModal = ({AreYouSureModalData}) => {
         isAreYouSureModalOpen,
     } = usePostContext()    
     const {headingMessage, bodyMessage} = AreYouSureModalData;
-    
+
   return (
     <Wrapper>
         <div className={isAreYouSureModalOpen ? "modal-container modal-container--open" : "modal-container"}>
@@ -50,7 +50,7 @@ const AreYouSureModal = ({AreYouSureModalData}) => {
                 ) : ""}
                 
                 <div className="modal__buttons">
-                    {AreYouSureModalData.buttons.map((button, index) => {
+                    {AreYouSureModalData.buttons?.map((button, index) => {
                         if(!headingMessage 
                             && !bodyMessage 
                             && index === 0) {

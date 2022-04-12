@@ -63,6 +63,20 @@ const CreatePost = () => {
         datePosted:datePosted(),
         postedBy:postedBy,
         postId:`${user.uid}+${postId}`,
+        /* will contain an object of users who have commented
+        eg: {
+          userUid:"sdfijksofi345",
+          username:"testName",
+          comment:"this is a test comment",
+          commentId:"89r6g7d78ghy",
+        }
+        
+        */
+        comments:[],
+        /*the amount of likes will be the length,
+        will contains the user uids of 
+        the people who liked the post*/
+        likes:[],
       }
 
 

@@ -112,6 +112,26 @@ const post_reducer = (state, action) => {
     return {...state, isAreYouSureModalOpen:false}
   }
 
+  if(action.type === "OPEN_ERROR_MODAL") {
+    document.querySelector("body").style.overflow = "hidden";
+    document.querySelector("body").style.position = "fixed";
+    return {
+      ...state,
+      isErrorModalOpen:true,
+      errorModalMessage:action.payload,
+    }
+  }
+
+  if(action.type === "CLOSE_ERROR_MODAL") {
+    document.querySelector("body").style.overflow = "auto";
+    document.querySelector("body").style.position = "static";
+    return {
+      ...state,
+      isErrorModalOpen:false,
+      errorModalMessage:"",
+     }
+  }
+
   // return state
   throw new Error(`No Matching "${action.type}" - action type`)
 }
