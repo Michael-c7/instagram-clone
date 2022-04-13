@@ -14,11 +14,6 @@ const Dashboard = () => {
     isErrorModalOpen,
     openErrorModal,
    } = usePostContext()
-
-
-  //  React.useEffect(() => {
-  //   openErrorModal()
-  // },[])
    
   return (
     <Wrapper>

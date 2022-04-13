@@ -1,10 +1,12 @@
 import React, { useRef } from 'react';
 import { useAuthContext } from "../Auth/AuthContext"
-
+import ErrorModal from "../components/modals/ErrorModal"
+import { usePostContext } from "../context/post_context"
 
 
 
 const SignUp = () => {
+    const { isErrorModalOpen } = usePostContext()
     const { registerUser } = useAuthContext()
 
     const userNameRef = useRef() 
@@ -24,25 +26,28 @@ const SignUp = () => {
 
 
     return (
-        <div className="center-transform">
-          <div className="login__container">
-              <div className="login__main-content">
-                  <h1 className="login__heading">Sign Up</h1>
-                  <form className="login__form" onSubmit={onSubmit}>
-                      <input className="form__input" type="text" ref={userNameRef} placeholder="Username"/>
-                      <input className="form__input" type="email" ref={emailRef} placeholder="Email"/>
-                      <input className="form__input" type="password" ref={passwordRef} placeholder="Password"/>
-                      <button className="form-login-btn form-login-btn-validated" type="submit">Sign Up</button>
-                  </form>
-              </div>
-              <div className="login__component">
-                  <p className="component__text">Have an account? <a className="component__text__link" href="/">Log in</a></p>
-              </div>
-              <div className="login__component">
-                  <p className="component__text">Just curious? <a className="component__text__link" href="/">Try a demo account</a></p>
-              </div>
-          </div>
-        </div>
+        <>
+            { isErrorModalOpen ? <ErrorModal/> : "" }
+            <div className="center-transform">
+                <div className="login__container">
+                    <div className="login__main-content">
+                        <h1 className="login__heading">Sign Up</h1>
+                        <form className="login__form" onSubmit={onSubmit}>
+                            <input className="form__input" type="text" ref={userNameRef} placeholder="Username"/>
+                            <input className="form__input" type="email" ref={emailRef} placeholder="Email"/>
+                            <input className="form__input" type="password" ref={passwordRef} placeholder="Password"/>
+                            <button className="form-login-btn form-login-btn-validated" type="submit">Sign Up</button>
+                        </form>
+                    </div>
+                    <div className="login__component">
+                        <p className="component__text">Have an account? <a className="component__text__link" href="/">Log in</a></p>
+                    </div>
+                    <div className="login__component">
+                        <p className="component__text">Just curious? <a className="component__text__link" href="/">Try a demo account</a></p>
+                    </div>
+                </div>
+            </div>
+        </>
     )
 };
 

@@ -1,11 +1,16 @@
 import React from 'react'
 import styled from "styled-components"
 import { Link } from 'react-router-dom';
+import ErrorModal from "../components/modals/ErrorModal"
+import { usePostContext } from "../context/post_context"
 
 
 const EmailSentConfirmation = () => {
+  const { isErrorModalOpen } = usePostContext()
+
   return (
       <Wrapper>
+      { isErrorModalOpen ? <ErrorModal/> : "" }
         <div className="center-transform">
             <div className="login__container">
                 <div className="login__main-content">

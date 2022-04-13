@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import styled from "styled-components"
+import { useParams, Link } from 'react-router-dom'
+// components
 import CreatePost from '../components/createPost'
 import Navbar from "../components/Navbar"
-import Loading from '../components/loaders/LoadingText'
 import ErrorModal from "../components/modals/ErrorModal"
-import { useParams, Link } from 'react-router-dom'
-import { usePostContext } from "../context/post_context"
+// loaders
+import Loading from "../components/loaders/LoadingText"
+// misc
 import defaultImage from "../utils/images/default-user.jpg"
+import { usePostContext } from "../context/post_context"
 import { getSpecificUser } from "../utils/helper"
 
 
@@ -117,8 +120,8 @@ const Profile = () => {
 
   return (
     <Wrapper>
-      { isErrorModalOpen ? <ErrorModal/> : ""}
-      {isCreatePostModalOpen ? <CreatePost/> : ""}
+      { isErrorModalOpen ? <ErrorModal/> : "" }
+      {isCreatePostModalOpen ? <CreatePost/> : "" }
       <Navbar/>
       <section className="profile">
         <div className="profile__inner">
