@@ -1,4 +1,4 @@
-import styled from "styled-components"
+import React from 'react';
 // logged in pages
 import Dashboard from "./pages/Dashboard"
 // logged out pages
@@ -29,22 +29,20 @@ import {
 
 function App() {
   const { isLoggedIn } = useAuthContext();
-
   /*
-  LOADING_VAR exists as a way to show a loading screen
-  before the authentication is done.
-  - should always remain true
+  loadingVar exists as a way to show a loading screen
+  before the authentication of logging in the user is done.
   */
-  const LOADING_VAR = true;
+  const [loading, setLoading] = React.useState(true)
 
-  if(LOADING_VAR && isLoggedIn) {
-    return (
-      <LoadingPage/>
-    )
-  } 
-  
+  React.useEffect(() => {
+    setTimeout(() => {
+      setLoading(false)
+    }, 500)
+  }, [])
 
-  if(isLoggedIn) {
+
+  if(!loading && isLoggedIn) {
     return (
       <BrowserRouter>
         <Routes>
@@ -56,9 +54,9 @@ function App() {
           <Route path="/EmailSentConfirmation" element={<Navigate to="/"/>}/>
           <Route path="*" element={<Error />} />
         </Routes>
-    </BrowserRouter>
+      </BrowserRouter>
     )
-  } else {
+  } else if(!loading && !isLoggedIn) {
     return (
       <BrowserRouter>
         <Routes>
@@ -72,9 +70,9 @@ function App() {
         </Routes>
       </BrowserRouter>
     )
+  } else {
+    return <LoadingPage/>
   }
 }
 
 export default App;
-
-
