@@ -390,6 +390,7 @@ const Wrapper = styled.div`
       .post__img-container {
         position:relative;
         width:max-content;
+        max-width:100%;
         height:calc(var(--post-height) - 0.1rem);
         left:50%;
         transform:translate(-50%);
@@ -398,6 +399,7 @@ const Wrapper = styled.div`
       .post__img {
         width:auto;
         height:100%;
+        max-width:100%;
       }
 
     

@@ -17,8 +17,8 @@ const Dashboard = () => {
    
   return (
     <Wrapper>
-      { isErrorModalOpen ? <ErrorModal/> : ""}
-      {isCreatePostModalOpen ? <CreatePost/> : ""}
+      { isErrorModalOpen ? <ErrorModal/> : "" }
+      {isCreatePostModalOpen ? <CreatePost/> : "" }
       <Navbar/>
       <section className="main-feed">
         <div className="feed"> 
