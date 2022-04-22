@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Feed from '../components/Feed';
 import styled from "styled-components"
-import CreatePost from '../components/createPost';
+import CreatePost from '../components/CreatePost';
 import { usePostContext } from "../context/post_context"
 import ErrorModal from "../components/modals/ErrorModal"
 
@@ -21,7 +21,7 @@ const Dashboard = () => {
       {isCreatePostModalOpen ? <CreatePost/> : "" }
       <Navbar/>
       <section className="main-feed">
-        <div className="feed"> 
+        <div className="feed">
           <Feed />
         </div>
       </section>

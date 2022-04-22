@@ -1,8 +1,13 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import reducer from '../reducers/post_reducer'
 // import { collection, getDocs } from "firebase/firestore"; 
-import { collection, query, where, getDocs, doc, updateDoc  } from "firebase/firestore";
+import { 
+  collection, query,
+  where, getDocs, doc,
+  updateDoc, arrayUnion,
+  getDoc  } from "firebase/firestore";
 import { AppAuth, db } from "../Auth/firebase"
+import { stringify } from '@firebase/util';
 import { v4 as uuidv4 } from 'uuid';
 // import { products_url as url } from '../utils/constants' 
 import { deleteDuplicates } from "../utils/helper"
@@ -239,7 +244,7 @@ this person is visiting are the same*/
         tried to follow user the current profile user ${currentProfileUid} UID,
         but something went wrong.
         This message gets triggered when the 
-        checkIfFollowing function  in the unFollowUser function
+        checkIfFollowing function in the unFollowUser function
         evaluates to true`
       )
     }
@@ -287,12 +292,14 @@ this person is visiting are the same*/
     const {
       documentId:currentProfileDocumentId,
       uid:currentProfileUid,
-      likes:currentProfileLikes,
     } = currentProfileUserData;
+
     const {
       documentId:loggedInProfileDocumentId,
       uid:loggedInProfileUid,
-    } = loggedInUserData;  
+    } = loggedInUserData;
+
+    
 
     try {
       /*add the logged in users uid to the likes array of the current post */
@@ -300,11 +307,71 @@ this person is visiting are the same*/
       /*
       1. add uid from logged in user to the likes array of this post
       */
-      const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+      // const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+      // console.log(currentProfileRef)
+
+      const currentRef = doc(db, "users", currentProfileDocumentId);
+      const docSnap = await getDoc(currentRef);
+      if(docSnap.exists()) {
+          const  {
+            email:prevEmail,
+            followers:prevFollowers,
+            following:prevFollowing,
+            password:prevPassword,
+            posts:prevPosts,
+            profile_image:prevProfile_image,
+            uid:prevUid,
+            username:prevUsername,
+          } = docSnap.data();
+
+        const currentPost = JSON.parse(docSnap.data().posts.filter((post) => JSON.parse(post).postId === postId)[0])
+        const notCurrentPosts = docSnap.data().posts.filter((post) => JSON.parse(post).postId !== postId)
+
+        const currentPostUpdated = {
+          comments:currentPost.comments,
+          datePosted:currentPost.datePosted,
+          description:currentPost.description,
+          likes:[...currentPost.likes, loggedInProfileUid],
+          postId:currentPost.postId,
+          postedBy:currentPost.postedBy,
+          userImage:currentPost.userImage,
+        }
+
+        let currentPostUpdatedStringify = stringify(currentPostUpdated)
+
+
+        const updatedData = {
+          email:prevEmail,
+          followers:prevFollowers,
+          following:prevFollowing,
+          password:prevPassword,
+          posts:
+            [
+            ...notCurrentPosts,
+            currentPostUpdatedStringify,
+            ],
+          profile_image:prevProfile_image,
+          uid:prevUid,
+          username:prevUsername,
+        }
+
+        // add to the current user
+        await updateDoc(currentRef, {
+          updatedData,
+        });
+        
+      } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+      }
       // should be the current profile --> the current post
-      await updateDoc(currentProfileRef, {
-        likes:deleteDuplicates([...currentProfileLikes, loggedInProfileUid])
-      });
+      // await updateDoc(currentRef, {
+      //  likes:deleteDuplicates([...currentProfileLikes, loggedInProfileUid])
+      // });
+      // await updateDoc(currentRef, {
+      //   likes:"this is a test",
+      //  });
+
 
     } catch(error) {
       console.log(error.message)
@@ -458,6 +525,7 @@ this person is visiting are the same*/
         checkIfPostLiked,
         openErrorModal,
         closeErrorModal,
+        likePost,
       }}>
       {children}
     </PostContext.Provider>

@@ -85,6 +85,7 @@ const CreatePost = () => {
 
       await updateDoc(postsDocRef, {
         posts:[...currentUserPosts, stringify(post)]
+        // posts:[...currentUserPosts, post]
       });
 
     // After the data is submitted

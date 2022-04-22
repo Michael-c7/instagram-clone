@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from "styled-components"
 import { useParams, Link } from 'react-router-dom'
 // components
-import CreatePost from '../components/createPost'
+import CreatePost from '../components/CreatePost'
 import Navbar from "../components/Navbar"
 import ErrorModal from "../components/modals/ErrorModal"
 // loaders
@@ -146,6 +146,7 @@ const Profile = () => {
             {currentUser?.posts?.length >= 1 ? (
               currentUser?.posts.map((post, index) => {
                 const {userImage:{src:image}, description, postId} = JSON.parse(post);
+                // const {userImage:{src:image}, description, postId} = post;
                 return (
                   <li className="posts__post" key={index}>
                     <Link className="posts__post__link" to={`/p/${postId}`}>

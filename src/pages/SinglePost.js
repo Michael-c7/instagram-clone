@@ -9,13 +9,13 @@ import { BiDotsHorizontalRounded } from "react-icons/bi"
 // misc
 import { usePostContext } from "../context/post_context"
 import {  useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { focusInput, getSpecificUser } from "../utils/helper"
 import defaultImage from "../utils/images/default-user.jpg"
 
 // components
 import Navbar from '../components/Navbar';
-import CreatePost from '../components/createPost';
+import CreatePost from '../components/CreatePost';
 import AreYouSureModal from '../components/modals/AreYouSureModal';
 import ErrorModal from "../components/modals/ErrorModal"
 
@@ -38,6 +38,8 @@ const SinglePost = () => {
   const [currentPostLikes, setCurrentPostLikes] = useState(0)
   const [currentPostLiked, setCurrentPostLiked] = useState(false)
 
+  const [loggedInUserData, setLoggedInUserData] = useState({})
+
   let testPostImg = "https://images.unsplash.com/photo-1643304842006-44079673c553?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
 
   
@@ -46,6 +48,7 @@ const SinglePost = () => {
     loggedInUid,
     checkCurrentUser,
     openAreYouSureModal,
+    closeAreYouSureModal,
     isCreatePostModalOpen,
     getUsersData,
     usersData,
@@ -54,14 +57,18 @@ const SinglePost = () => {
     getCurrentLikesOfPost,
     checkIfPostLiked,
     isErrorModalOpen,
+    likePost,
   } = usePostContext()
 
   const { id:postIdFromUrl } = useParams()
+
+  let navigate = useNavigate();
 
 
   useEffect(() => {
     setUserUid(postIdFromUrl.split("+")[0])
     setPostId(postIdFromUrl.split("+")[1])
+    // setPostId(postIdFromUrl.split("+")[1])
 
     getUsersData()
   }, [])
@@ -88,6 +95,15 @@ const SinglePost = () => {
   }, [currentPostLikes, currentPostLiked])
 
 
+  useEffect(() => {
+    // get logged in user data
+    setLoggedInUserData(getSpecificUser(loggedInUid, usersData))
+  }, [usersData])
+
+  const goToProfile = _ => {
+    closeAreYouSureModal()
+    navigate(`/${userUid}`)
+  }
 
 
   useEffect(() => {
@@ -130,7 +146,7 @@ const SinglePost = () => {
 
             {
               text:"Go to Profile",
-              function:"",
+              function:goToProfile,
               functionArguments:[],
               giveBoldStyle:true,
             }
@@ -142,8 +158,14 @@ const SinglePost = () => {
 
 
 
-
   
+  // const getPost = (postId, posts) => {
+  //   if(posts) {
+  //     let post = posts?.filter((item) => item?.postId.split("+")[1] === postId)
+  //     return post[0]
+  //   }
+  // }
+
   const getPost = (postId, posts) => {
     if(posts) {
       let post = posts?.filter((item) => JSON?.parse(item)?.postId.split("+")[1] === postId)
@@ -314,7 +336,7 @@ const SinglePost = () => {
               {/* details */}
               <div className="post__info__details">
                 <div className="post__info__details__icons">
-                  <button className="post_info__like-btn">
+                  <button className="post_info__like-btn" onClick={() => likePost(currentUserData, loggedInUserData, postIdFromUrl)}>
                     {currentPostLiked ? (
                       <AiFillHeart className="post_info__like-btn--liked"/>
                     ) : (
@@ -392,6 +414,7 @@ const Wrapper = styled.div`
         width:max-content;
         max-width:100%;
         height:calc(var(--post-height) - 0.1rem);
+        max-height:calc(var(--post-height) - 0.1rem);
         left:50%;
         transform:translate(-50%);
       }
@@ -400,6 +423,8 @@ const Wrapper = styled.div`
         width:auto;
         height:100%;
         max-width:100%;
+        max-height:100%;
+        object-fit:contain;
       }
 
     
