@@ -30,6 +30,8 @@ const Profile = () => {
     unFollowUser,
     followButtonLoading,
     isErrorModalOpen,
+    getCollectionData,
+    profilePostsData,
   } = usePostContext()
   
   const [currentUser, setCurrentUser] = useState({})
@@ -67,7 +69,14 @@ const Profile = () => {
     // set follower & following count
     setFollowerCount(currentUser?.followers?.length)
     setFollowingCount(currentUser?.following?.length)
+
+    // get current post data
+    if(currentUser?.documentId) {
+      getCollectionData(["users", currentUser?.documentId, "posts"])
+    }
   }, [currentUser])
+
+
 
 
   const followBtnLogic = _ => {
@@ -143,10 +152,10 @@ const Profile = () => {
           </div>
 
           <ul className="profile__posts">
-            {currentUser?.posts?.length >= 1 ? (
-              currentUser?.posts.map((post, index) => {
-                const {userImage:{src:image}, description, postId} = JSON.parse(post);
-                // const {userImage:{src:image}, description, postId} = post;
+            {profilePostsData?.length >= 1 ? (
+              profilePostsData.map((post, index) => {
+                // const {userImage:{src:image}, description, postId} = JSON.parse(post);
+                const {userImage:{src:image}, description, postId} = post;
                 return (
                   <li className="posts__post" key={index}>
                     <Link className="posts__post__link" to={`/p/${postId}`}>

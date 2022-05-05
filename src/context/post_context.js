@@ -56,6 +56,10 @@ let initialState = {
 
   isErrorModalOpen:false,
   errorModalMessage:"",
+
+
+
+  profilePostsData:[],
 }
 
 const PostContext = React.createContext()
@@ -366,6 +370,33 @@ this person is visiting are the same*/
   }
 
 
+   /**
+   * 
+   * @param {array} path the path of the the document eg: ["users", testDocId, "posts", "post-id-here-2"] or ["users", testDocId, "posts"]
+   */
+  const getCollectionData = async (path) => {
+    //  "users", "NlUTt75XbJjwtLsM1UtL", "posts", "847bcebf-d255-41b6-86e2-162830e83430";
+    // test path. delete after done w/ testing
+    // path = ["users", "NlUTt75XbJjwtLsM1UtL", "posts"]
+
+    try {
+      let arrayOfPosts = []
+      const querySnapshot = await getDocs(collection(db, ...path));
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        let postData = {...doc.data(), documentId:doc.id}
+        arrayOfPosts.push(postData)
+      });
+
+      dispatch({ type: "GET_COLLECTION_DATA", payload:arrayOfPosts})
+
+    } catch(error) {
+        console.log(error.message)
+        openErrorModal(error.message)
+    }
+  }
+
+
 
 
   useEffect(() => {
@@ -518,6 +549,7 @@ this person is visiting are the same*/
         getCurrentUserPosts,
         getCurrentUserPost,
         createOrUpdateCollection,
+        getCollectionData,
       }}>
       {children}
     </PostContext.Provider>

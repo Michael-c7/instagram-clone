@@ -100,6 +100,9 @@ const CreatePost = () => {
         will contains the user uids of 
         the people who liked the post*/
         likes:[],
+
+        /*have a sub collection in the post sub-collection
+        for comments that are on the post */
       })
 
 

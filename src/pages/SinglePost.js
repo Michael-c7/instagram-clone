@@ -58,6 +58,8 @@ const SinglePost = () => {
     checkIfPostLiked,
     isErrorModalOpen,
     likePost,
+    profilePostsData,
+    getCollectionData,
   } = usePostContext()
 
   const { id:postIdFromUrl } = useParams()
@@ -78,9 +80,9 @@ const SinglePost = () => {
   }, [usersData])
 
 
-  useEffect(() => {
-    setCurrentPostData(getPost(postId, currentUserData?.posts))
-  }, [currentUserData])
+  // useEffect(() => {
+  //   setCurrentPostData(getPost(postId, currentUserData?.posts))
+  // }, [currentUserData])
 
   useEffect(() => {
     // if current post already liked
@@ -98,12 +100,24 @@ const SinglePost = () => {
   useEffect(() => {
     // get logged in user data
     setLoggedInUserData(getSpecificUser(loggedInUid, usersData))
+
+    
   }, [usersData])
 
   const goToProfile = _ => {
     closeAreYouSureModal()
     navigate(`/${userUid}`)
   }
+
+  useEffect(() => {
+    getCollectionData(["users", "NlUTt75XbJjwtLsM1UtL", "posts"])
+    profilePostsData?.forEach((post) => {
+      if(post.postId === postIdFromUrl) {
+        setCurrentPostData(post) 
+      }
+    })
+
+  }, [profilePostsData])
 
 
   useEffect(() => {

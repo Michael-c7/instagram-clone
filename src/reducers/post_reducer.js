@@ -149,6 +149,12 @@ const post_reducer = (state, action) => {
     }
   }
 
+
+
+  if(action.type === "GET_COLLECTION_DATA") {
+    return {...state, profilePostsData:action.payload}
+  }
+
   
 
   // return state
