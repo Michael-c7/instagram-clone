@@ -10,7 +10,13 @@ import {
     getAuth,
  } from "firebase/auth";
 
-import { collection, addDoc, getDocs, doc, setDoc,  } from "firebase/firestore"; 
+import { 
+    collection,
+    addDoc,
+    getDocs,
+    doc,
+    setDoc,
+  } from "firebase/firestore"; 
 
 import { AppAuth, db } from "./firebase"
 
@@ -40,7 +46,7 @@ export const AuthContextProvider = ({children}) => {
     }, [])
     
 
-  const registerUser = (username, email, password) => {
+  const registerUser = async (username, email, password) => {
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         // Signed in 
@@ -52,10 +58,9 @@ export const AuthContextProvider = ({children}) => {
             password,
             uid:user.uid,
             profile_image:"https://images.unsplash.com/photo-1544502062-f82887f03d1c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1259&q=80",
-            posts:[],
             following:[],
             followers:[],
-        })        
+        })
         // log in the user
         setIsLoggedIn(true)
     })
@@ -78,6 +83,7 @@ export const AuthContextProvider = ({children}) => {
     .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
+        console.log(user)
         // log in the user
         setIsLoggedIn(true)
 
@@ -87,6 +93,7 @@ export const AuthContextProvider = ({children}) => {
                 /*checking if object of values exists and if the current objects uid value(the unique user id) is equal to signed in users uid*/
                 if(thing["_document"].data.value.mapValue.fields && thing["_document"].data.value.mapValue.fields.uid.stringValue === userCredential.uid) {
                     let currentInfo = thing["_document"].data.value.mapValue.fields;
+                    
                     // the user info
                     /*
                     email:currentInfo.email.stringValue,

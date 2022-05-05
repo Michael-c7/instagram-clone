@@ -4,7 +4,7 @@ import reducer from '../reducers/post_reducer'
 import { 
   collection, query,
   where, getDocs, doc,
-  updateDoc, arrayUnion,
+  updateDoc, arrayUnion,setDoc,addDoc,
   getDoc  } from "firebase/firestore";
 import { AppAuth, db } from "../Auth/firebase"
 import { stringify } from '@firebase/util';
@@ -34,17 +34,24 @@ import {
 let initialState = {
   isCreatePostModalOpen:false,
   isAreYouSureModalOpen:false,
+
   getLoggedInUserData:[],
   currentUserData:{},
   loggedInUid:"",
+
   loggedInUserData:{},
+  currentUserPosts:[],
+  currentUserPost:{},
+
   loggedInUserSameAsCurrentProfile:false,
   navigationIconHome:true,
   navigationIconExplore:false,
   showProfileDropdown:false,
   isFollowing:false,
+
   currentProfileFollowers:0,
   currentProfileFollowing:0,
+
   followButtonLoading:false,
 
   isErrorModalOpen:false,
@@ -288,6 +295,95 @@ this person is visiting are the same*/
     }
   }
 
+
+
+
+
+
+  /**
+   * 
+   * @param {string} userUid the uid of the user, will be on the user & the post
+   */
+  const getCurrentUserPosts = async userUid => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "posts"));
+      querySnapshot.forEach((doc) => {
+        let data = doc.data()
+        if(data?.userUid === userUid) {
+          dispatch({type:"GET_CURRENT_USER_POSTS", payload: data})
+        }
+      })
+    } catch (error) {
+      console.log(error.message)
+      openErrorModal(error.message)
+    }
+  }
+
+
+
+
+
+
+  /**
+   * 
+   * @param {string} postId the id of the post, will be in the url and look like eg: fbHXxAzuwUatwPZbdZyVVmC9B4j2+dd8cedac-eb84-4d7d-9a5b-05a1c8daacf8
+   */
+  const getCurrentUserPost = async (postId) => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "posts"));
+      querySnapshot.forEach((doc) => {
+        let data = doc.data()
+        if(data.uid === postId) {
+          dispatch({type:"GET_CURRENT_USER_POST", payload:data})
+        }
+      })
+    } catch (error) {
+      console.log(error.message)
+      openErrorModal(error.message)
+    }
+  }
+
+  const getCurrentUserPostComments = async postId => {
+
+  }
+
+  /**
+   * 
+   * @param {array} path the path of the the document eg: "users", testDocId, "posts", "post-id-here-2" or "users", testDocId, "posts"
+   * @param {object} data the data you want to add / update.
+   
+  * if the path is even then it will be updated w/  manual id otherwise it will be updated w/ the generated id
+   */
+  const createOrUpdateCollection = async (path, data) => {
+    // if the path is even then update / add w/ manual id
+    if(path.length % 2 === 0) {
+      await setDoc(doc(db, ...path), data);
+    }
+    // if the path is odd then update / add w/ generated id
+    else {
+      await addDoc(collection(db, ...path), data);
+    }
+  }
+
+
+
+
+  useEffect(() => {
+    // createOrUpdateCollection(
+    //   ["users", "doc-id-here", "posts", "post-id-here"],
+    //   {
+    //     name:"hgdiughidug",
+    //     age:565,
+    //   }
+    //   )
+  }, [])
+
+
+
+
+
+
+
   const likePost = async (currentProfileUserData, loggedInUserData, postId) => {
     const {
       documentId:currentProfileDocumentId,
@@ -299,79 +395,30 @@ this person is visiting are the same*/
       uid:loggedInProfileUid,
     } = loggedInUserData;
 
-    
+    // const currentProfileRef = doc(db, "users", currentProfileDocumentId);
+
+    // // Add a new document with a generated id.
+    // const docRef = await addDoc(collection(db, "users", currentProfileDocumentId, "posts" ), {
+    //   userImage:{
+    //     src:"",
+    //     name:"",
+    //     size:"",
+    //     type:"",
+    //   },
+    //   description:"",
+    //   datePosted:"",
+    //   postedBy:"",
+    //   postId:"",
+    //   comments:[],
+    //   /*the amount of likes will be the length,
+    //   will contains the user uids of 
+    //   the people who liked the post*/
+    //   likes:[],
+    // });
+
+    console.log("sub attempt went through")
 
     try {
-      /*add the logged in users uid to the likes array of the current post */
-
-      /*
-      1. add uid from logged in user to the likes array of this post
-      */
-      // const currentProfileRef = doc(db, "users", currentProfileDocumentId);
-      // console.log(currentProfileRef)
-
-      const currentRef = doc(db, "users", currentProfileDocumentId);
-      const docSnap = await getDoc(currentRef);
-      if(docSnap.exists()) {
-          const  {
-            email:prevEmail,
-            followers:prevFollowers,
-            following:prevFollowing,
-            password:prevPassword,
-            posts:prevPosts,
-            profile_image:prevProfile_image,
-            uid:prevUid,
-            username:prevUsername,
-          } = docSnap.data();
-
-        const currentPost = JSON.parse(docSnap.data().posts.filter((post) => JSON.parse(post).postId === postId)[0])
-        const notCurrentPosts = docSnap.data().posts.filter((post) => JSON.parse(post).postId !== postId)
-
-        const currentPostUpdated = {
-          comments:currentPost.comments,
-          datePosted:currentPost.datePosted,
-          description:currentPost.description,
-          likes:[...currentPost.likes, loggedInProfileUid],
-          postId:currentPost.postId,
-          postedBy:currentPost.postedBy,
-          userImage:currentPost.userImage,
-        }
-
-        let currentPostUpdatedStringify = stringify(currentPostUpdated)
-
-
-        const updatedData = {
-          email:prevEmail,
-          followers:prevFollowers,
-          following:prevFollowing,
-          password:prevPassword,
-          posts:
-            [
-            ...notCurrentPosts,
-            currentPostUpdatedStringify,
-            ],
-          profile_image:prevProfile_image,
-          uid:prevUid,
-          username:prevUsername,
-        }
-
-        // add to the current user
-        await updateDoc(currentRef, {
-          updatedData,
-        });
-        
-      } else {
-        // doc.data() will be undefined in this case
-        console.log("No such document!");
-      }
-      // should be the current profile --> the current post
-      // await updateDoc(currentRef, {
-      //  likes:deleteDuplicates([...currentProfileLikes, loggedInProfileUid])
-      // });
-      // await updateDoc(currentRef, {
-      //   likes:"this is a test",
-      //  });
-
 
     } catch(error) {
       console.log(error.message)
@@ -379,54 +426,6 @@ this person is visiting are the same*/
     }
   }
 
-
-  /*
-  const {
-      documentId:currentProfileDocumentId,
-      uid:currentProfileUid,
-      followers:currentProfileFollowers,
-    } = currentProfileUserData;
-    const {
-      documentId:loggedInProfileDocumentId,
-      uid:loggedInProfileUid,
-      following:loggedInProfileFollowing,
-    } = loggedInUserData;    
-    
-    dispatch({type:FOLLOW_BUTTON_LOADING_START})
-
-    if(!checkIfFollowing(currentProfileUserData, loggedInUserData)) {
-
-      try {
-        //  add the logged in users uid to the current profiles followers array
-        const loggedInRef = doc(db, "users", loggedInProfileDocumentId);
-        await updateDoc(loggedInRef, {
-          following:deleteDuplicates([...loggedInProfileFollowing, currentProfileUid])
-        });
-  
-        //  add the current profiles uid to the logged in users following array
-        const currentProfileRef = doc(db, "users", currentProfileDocumentId);
-        await updateDoc(currentProfileRef, {
-          followers:deleteDuplicates([...currentProfileFollowers, loggedInProfileUid])
-        });
-  
-        dispatch({type:FOLLOW_BUTTON_LOADING_STOP})
-      } catch(error) {
-        console.log(error.message)
-      }
-      dispatch({type:FOLLOW_USER})
-
-    } else {
-      // do nothing
-      console.log(`
-        The logged in user ${loggedInProfileUid} UID
-        tried to follow user the current profile user ${currentProfileUid} UID,
-        but something went wrong.
-        This message gets triggered when the 
-        checkIfFollowing function  in the followUser function
-        evaluates to false`
-      )
-    }
-  */
 
   const unLikePost = async (currentProfileUserData, loggedInUserData) => {
     console.log("unlike the post")
@@ -452,19 +451,6 @@ this person is visiting are the same*/
 
 
 
-  // const meta = async _ => {
-  //   const q = query(collection(db, "users"));
-  //     const querySnapshot = await getDocs(q);
-  //     querySnapshot.forEach((doc) => {
-  //       // doc.data() is never undefined for query doc snapshots
-  //       console.log(doc.id)
-  //     });
-  // }
-
-
-
-
-
   useEffect(() => {
     getUsersData()
     // getLoggedInUserData(state.loggedInUid)
@@ -473,8 +459,11 @@ this person is visiting are the same*/
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(getAuth(), res => {
-      const loggedInUserUid = res.uid;
-      dispatch({type:"GET_LOGGED_IN_UID", payload:loggedInUserUid})
+      if(res.uid) {
+        const loggedInUserUid = res.uid;
+        dispatch({type:"GET_LOGGED_IN_UID", payload:loggedInUserUid})
+      }
+      // else do nothing
     });
     return unsubscribe;    
 }, [])
@@ -526,6 +515,9 @@ this person is visiting are the same*/
         openErrorModal,
         closeErrorModal,
         likePost,
+        getCurrentUserPosts,
+        getCurrentUserPost,
+        createOrUpdateCollection,
       }}>
       {children}
     </PostContext.Provider>

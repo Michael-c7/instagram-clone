@@ -131,6 +131,25 @@ const post_reducer = (state, action) => {
       errorModalMessage:"",
      }
   }
+  
+
+
+  if(action.type === "GET_CURRENT_USER_POSTS") {
+    return {
+      ...state,
+      currentUserPosts:action.payload,
+    }
+  }
+
+
+  if(action.type === "GET_CURRENT_USER_POST") {
+    return {
+      ...state,
+      currentUserPost:action.payload,
+    }
+  }
+
+  
 
   // return state
   throw new Error(`No Matching "${action.type}" - action type`)

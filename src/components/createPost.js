@@ -15,6 +15,7 @@ const CreatePost = () => {
   const { user } = useAuthContext()
   const [picture, setPicture] = useState(null);
   const [imgData, setImgData] = useState(null);
+  // const [currentUser, setCurrentUser] = useState(null)
   const descriptionRef = useRef() 
 
   const { 
@@ -24,9 +25,15 @@ const CreatePost = () => {
     currentUserData:{username, profile_image,posts:currentUserPosts, documentId},
     currentUserData,
     generateUniqueId,
+    createOrUpdateCollection,
   } = usePostContext()
 
   const { id:uidFromUrl } = useParams()
+
+  const getUserDocumentId = _ => {
+    const currentUserDataIndex = usersData.findIndex((userData) => userData.uid === user.uid)
+    return usersData[currentUserDataIndex]?.documentId
+  }
 
 
 // show the chosen image
@@ -45,7 +52,7 @@ const CreatePost = () => {
 
   useEffect(() => {
     getCurrentUserData(user.uid, usersData)
-  }, [currentUserData])
+  }, [])
 
 
 
@@ -63,16 +70,6 @@ const CreatePost = () => {
         datePosted:datePosted(),
         postedBy:postedBy,
         postId:`${user.uid}+${postId}`,
-        /* will contain an object of users who have commented
-        eg: {
-          userUid:"sdfijksofi345",
-          username:"testName",
-          comment:"this is a test comment",
-          commentId:"89r6g7d78ghy",
-        }
-        
-        */
-        comments:[],
         /*the amount of likes will be the length,
         will contains the user uids of 
         the people who liked the post*/
@@ -81,12 +78,36 @@ const CreatePost = () => {
 
 
     // Add a new document in collection "users"
-      const postsDocRef = doc(db, "users", documentId);
+      // const postsDocRef = doc(db, "users", documentId);
+      // const postsDocRef = doc(db, "users", documentId, "posts");
+      // console.log(postsDocRef)
 
-      await updateDoc(postsDocRef, {
-        posts:[...currentUserPosts, stringify(post)]
-        // posts:[...currentUserPosts, post]
-      });
+      // TEST  THIS NOW
+      // createOrUpdateCollection(["users", documentId, "posts", postId], post)
+
+      createOrUpdateCollection(["users", documentId, "posts", postId], {
+        userImage:{
+          src:userImage[0],
+          name:userImage[1].name,
+          size:userImage[1].size,
+          type:userImage[1].type,
+        },
+        description,
+        datePosted:datePosted(),
+        postedBy:postedBy,
+        postId:`${user.uid}+${postId}`,
+        /*the amount of likes will be the length,
+        will contains the user uids of 
+        the people who liked the post*/
+        likes:[],
+      })
+
+
+
+      // await updateDoc(postsDocRef, {
+      //   // posts:[...currentUserPosts, stringify(post)]
+      //   posts:[...currentUserPosts, post]
+      // });
 
     // After the data is submitted
       // close the modal

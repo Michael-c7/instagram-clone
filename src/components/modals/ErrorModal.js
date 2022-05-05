@@ -78,11 +78,13 @@ const Wrapper = styled.div`
     position:absolute;
     border-radius:10px;
     padding:0rem 0 0rem 0;
-    width:20rem;
+    min-width:20rem;
+    max-width:100vw;
   }
 
   .error-modal__content {
     margin:1rem 0;
+    padding:0 0.25rem;
   }
 
   .error-modal__heading {
@@ -93,13 +95,15 @@ const Wrapper = styled.div`
   .error-modal__message {
     font-size:1rem;
     color:#222;
+    width:60ch;
+    height:auto;
   }
 
   .error-modal__hr {
-    display: block;
-    height: 1px;
-    border: 0;
-    border-top: 1px solid #ccc;
+    display:block;
+    height:1px;
+    border:0;
+    border-top:1px solid #ccc;
     margin:0rem 0;
     padding:0;
   }
